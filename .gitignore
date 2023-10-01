@@ -1,0 +1,11 @@
+node_modules
+.DS_Store
+dist
+dist-ssr
+*.local
+TODO.md
+__tests__
+.idea
+*.log
+!public/**
+public/**/.DS_Store

@@ -1,0 +1,25 @@
+{
+  "manifest_version": 2,  
+  "name": "SQL工具",
+  "version": "1.0",
+  "description": "这是一个SQL开发工具，目前主要提供SQL处理的快捷工具",
+  "icons": {
+    "16": "logo.png",
+    "48": "logo.png",
+    "128": "logo.png"
+  },
+  "browser_action": {
+    "default_icon": {
+      "16": "logo.png",
+      "48": "logo.png",
+      "128": "logo.png"
+    },
+    "default_title": "SQL工具",
+    "default_popup": "index.html"
+  },
+  "permissions": [
+    "tabs",
+    "http://*/*",
+    "https://*/*"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "main": "index.html",
+  "development": {
+    "main": "http://localhost:5175"
+  },
+  "logo": "./logo.png",
+  "pluginSetting": {
+    "height": 700
+  },
+  "features": [
+    {
+      "code": "format",
+      "explain": "一个基于utools的美化SQL工具",
+      "cmds": ["format", "漂亮", "美化", "优化"]
+    },
+    {
+      "code": "sharding",
+      "explain": "一个基于utools的sharding sql工具",
+      "cmds": ["sharding", "分库分表"]
+    },
+    {
+      "code": "col2row",
+      "explain": "一个基于utools的换转列的辅助工具",
+      "cmds": ["行转列", "列转行"]
+    },
+    {
+      "code": "parse-sql",
+      "explain": "一个基于utools的SQL日志解析工具",
+      "cmds": ["parse", "解析", "SQL解析"]
+    }
+  ]
+}
