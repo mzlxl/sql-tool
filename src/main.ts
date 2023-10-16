@@ -11,7 +11,7 @@ import 'element-plus/theme-chalk/el-message-box.css'
 import 'element-plus/theme-chalk/el-overlay.css'
 import 'element-plus/theme-chalk/el-dialog.css'
 
-import {copyPasteOut} from './utils/utools'
+import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import {isUtoolsEnv} from './utils/index'
 
 if (isUtoolsEnv()) {
@@ -63,6 +63,9 @@ if (isUtoolsEnv()) {
 
 
 const app = createApp(AppVue)
+for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+  app.component(key, component)
+}
 app.use(router)
 app.mount('#app')
 

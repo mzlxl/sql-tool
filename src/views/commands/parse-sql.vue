@@ -8,11 +8,23 @@
       </el-select>
     </el-form-item>
     <el-form-item label="SQL日志样本">
+      <span slot="label" style="position: absolute;left: -25px;top:2px">
+        <el-tooltip class="item" effect="dark" :content="type === 'ShardingSphere'?shardingSphereExample:normalExample"
+                    placement="top" style="position: fixed">
+          <el-icon @click="copySqlExample"><Warning/> </el-icon>
+        </el-tooltip>
+      </span>
       <el-input type="textarea" v-model="sqlSample"
                 placeholder="请输入要解析的SQL日志样本"
                 :autosize="{ minRows: 4, maxRows: 6 }"></el-input>
     </el-form-item>
     <el-form-item label="参数日志样本" v-if="type === 'normal'">
+       <span slot="label" style="position: absolute;left: -25px;top:2px">
+        <el-tooltip class="item" effect="dark" :content="paramExample"
+                    placement="top" style="position: fixed">
+          <el-icon @click="copyParamExample"><Warning/> </el-icon>
+        </el-tooltip>
+      </span>
       <el-input type="textarea" v-model="paramSample"
                 placeholder="请输入要解析的参数日志样本"
                 :autosize="{ minRows: 2, maxRows: 4 }"></el-input>
@@ -38,13 +50,16 @@ import {copyText} from '../../utils'
 import {format} from 'sql-formatter';
 
 const types = ref([{name: '通用SQL日志解析', type: 'normal'},
-  {name: 'shardingsphere SQL日志解析', type: 'shardingsphere'}])
+  {name: 'ShardingSphere SQL日志解析', type: 'ShardingSphere'}])
 const type = ref('normal')
 const separator = ref('_')
 
 const sqlSample = ref('')
 const paramSample = ref('')
 const sqlResult = ref('')
+const shardingSphereExample = ref('示例：Actual SQL: dbName ::: SELECT *  FROM tableName WHERE  a=? AND b=? AND c=? ::: [1,b,c(String)]')
+const normalExample = ref('示例：SELECT *  FROM tableName WHERE  a=? AND b=? AND c=?')
+const paramExample = ref('示例：[1,b,c(String)]')
 
 const generateResult = () => {
   if (!sqlSample.value || sqlSample.value.trim() == '') {
@@ -52,7 +67,7 @@ const generateResult = () => {
     return
   }
 
-  if (type.value === 'shardingsphere') {
+  if (type.value === 'ShardingSphere') {
     generateShardingSphereResult()
   } else {
     generateNormalResult()
@@ -170,6 +185,14 @@ const copyResult = () => {
   }
   copyText(sqlResult.value)
   ElMessage.success('复制成功')
+}
+
+const copySqlExample = () => {
+  sqlSample.value = type.value === 'ShardingSphere' ? shardingSphereExample.value.replace('示例：', '') : normalExample.value.replace('示例：', '')
+}
+
+const copyParamExample = () => {
+  paramSample.value = paramExample.value.replace('示例：', '')
 }
 
 const clear = () => {

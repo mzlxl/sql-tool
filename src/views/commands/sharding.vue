@@ -51,10 +51,16 @@
       <el-col :span="6">
         <el-form-item label="分片策略" class="w-250px">
           <el-select placeholder="请选择分片策略" filterable v-model="shardingObj.strategy" class="w-220px"
-                     collapse-tags>
+                     collapse-tags @change="strategyChange">
             <el-option v-for="item in shardingStrategies" :key="item.code" :value="item.code"
                        :label="item.name"></el-option>
           </el-select>
+          <span slot="label" style="position: relative;top:-30px;left:190px;z-index:9999">
+        <el-tooltip class="item" effect="dark" :content="strategyDesc"
+                    placement="top" style="position: fixed">
+          <el-icon><Warning/> </el-icon>
+        </el-tooltip>
+      </span>
         </el-form-item>
       </el-col>
       <el-col :span="6"></el-col>
@@ -197,6 +203,8 @@ const shardingObj: Ref<ShardingObject> = ref({
   result: ''
 });
 
+const strategyDesc = ref('tableIndex = shardingValue%(tableNum*dbNum); dbIndex = tableIndex/tableNum')
+
 const historyLength = 10
 
 const shardingStrategies = ref([{code: 'default', name: '将分片值直接运算'}, {
@@ -326,6 +334,11 @@ const formatSql = () => {
     shardingObj.value.result = ''
     return ElMessage.error('请输入正确的SQL')
   }
+}
+
+const strategyChange = () => {
+  strategyDesc.value = shardingObj.value.strategy == 'hashcode' ? "先将shardingValue取java中的hash值：tableIndex = hash(shardingValue)%(tableNum*dbNum); dbIndex = tableIndex/tableNum" :
+      "tableIndex = shardingValue%(tableNum*dbNum); dbIndex = tableIndex/tableNum"
 }
 
 </script>
