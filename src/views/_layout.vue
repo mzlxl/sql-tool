@@ -25,7 +25,7 @@ if (isUtoolsEnv()) {
   containerWidth.value = '100vw'
   containerHeight.value = '100vh'
 } else {
-  containerWidth.value = '800px'
+  containerWidth.value = '750px'
   containerHeight.value = '600px'
 }
 
