@@ -5,7 +5,11 @@
 - 漂亮SQL工具:SQL格式化工具
 - 分库分表工具：快捷生成分库分表路由SQL，并支持历史记录显示和应用
 - 列转行工具：列转行&行转列，快速生成SQL查询条件
-- SQL日志解析：支持 shardingsphere sql日志解析
+- SQL日志解析：通用SQL参数拼接，以及特有 shardingsphere sql日志解析
+
+## 支持平台
+- utools：请将.upx后缀的安装包拖入到utools安装插件使用
+- chrome：在谷歌浏览器方案chrome://extensions/  选择dist文件夹安装插件
 
 ## 如何部署
 

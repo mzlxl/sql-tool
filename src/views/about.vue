@@ -9,8 +9,7 @@
 <script setup lang="ts">
 import {openUrl} from '../utils'
 
-const openGithub = () => openUrl('#')
-// const openGithub = () => openUrl('https://github.com/mzlxl/sql-tool')
+const openGithub = () => openUrl('https://github.com/mzlxl/sql-tool')
 </script>
 
 <style scoped lang="scss">
