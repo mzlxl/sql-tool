@@ -3,7 +3,7 @@
   "version": "2.0.0",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc --noEmit && vite build && cp manifest.json dist/",
+    "build": "vue-tsc --noEmit && vite build && node copyManifest.js",
     "preview": "vite preview",
     "test": "vitest",
     "coverage": "vitest run --coverage"
