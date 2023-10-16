@@ -89,7 +89,7 @@
       <el-collapse-item v-for="(item, index ) in historyList" :key="index" style="position:relative;" :name="index+''">
         <template #title>
           <span style="font-size: 16px;margin-right: 150px;font-weight: 500;" class="ellipsis">
-            库表：{{ item?.dbName }}.{{ item?.tableName }}</span>
+            库表：{{ item?.dbName }}{{ item?.dbName ? '.' : '' }}{{ item?.tableName }}</span>
           <el-button @click.stop.prevent="removeHistory(index)" round size="small"
                      style="right: 100px;position: absolute">
             移除
@@ -98,9 +98,9 @@
                      style="right: 45px;position: absolute">
             应用
           </el-button>
-          <el-icon class="header-icon">
-            <info-filled/>
-          </el-icon>
+          <!--          <el-icon class="header-icon">-->
+          <!--            <info-filled/>-->
+          <!--          </el-icon>-->
         </template>
         <el-form label-position="left" label-width="70px">
           <el-row>
@@ -224,7 +224,7 @@ if (onMounted) {
 
 const generateResult = () => {
   shardingObj.value.result = '';
-  if (shardingObj.value.dbName.trim() == '' || shardingObj.value.tableName.trim() == ''
+  if (shardingObj.value.tableName.trim() == ''
       || shardingObj.value.key.trim() == '' || shardingObj.value.value.trim() == '') {
     ElMessage.info(`请填写完整的分库分表规则`)
     return
@@ -240,10 +240,15 @@ const generateResult = () => {
   }
   let tableIndex: number = shardingValue % (shardingObj.value.tableNum * shardingObj.value.dbNum);
   let dbIndex: number = Math.floor(tableIndex / shardingObj.value.tableNum);
-  shardingObj.value.result = 'SELECT * FROM ' + symbol.value + shardingObj.value.dbName.trim() + '_' + dbIndex + symbol.value + '.' +
+  shardingObj.value.result = 'SELECT * FROM ' + (shardingObj.value.dbName.trim() ? symbol.value : '') +
+      shardingObj.value.dbName.trim() + (shardingObj.value.dbName.trim() ? '_' + dbIndex + symbol.value + '.' : '') +
       symbol.value + shardingObj.value.tableName.trim() + '_' + tableIndex + symbol.value + ' WHERE ' + symbol.value +
       shardingObj.value.key.trim() + symbol.value + ' = ' + shardingObj.value.value.trim() + ';';
   ElMessage.success('生成成功')
+  assemblehistory()
+}
+
+const assemblehistory = () => {
   distinctHistoryByShardingObj()
   historyList.value.unshift(cloneDeep(shardingObj.value) as ShardingObject);
   removeHistoryByLimitLength();
@@ -319,6 +324,7 @@ const removeHistory = (index: number) => {
 
 const useHistory = (item: ShardingObject) => {
   shardingObj.value = cloneDeep(item) as ShardingObject
+  assemblehistory()
   ElMessage.success('应用成功')
 }
 
