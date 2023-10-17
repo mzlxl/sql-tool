@@ -11,7 +11,7 @@
     {
       "code": "format",
       "explain": "一个基于utools的美化SQL工具",
-      "cmds": ["format", "漂亮", "美化", "优化", "格式化"]
+      "cmds": ["format", "美化", "格式化", "sql"]
     },
     {
       "code": "sharding",
