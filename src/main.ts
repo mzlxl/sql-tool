@@ -58,7 +58,7 @@ if (isUtoolsEnv()) {
       },
   )
 } else {
-  router.push({name: '/commands/format-sql'})
+  router.push({name: '/commands/sharding'})
 }
 
 
