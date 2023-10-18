@@ -6,6 +6,8 @@ import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import VueRouter from 'unplugin-vue-router/vite'
 import { VueRouterAutoImports } from 'unplugin-vue-router'
+import Unocss from 'unocss/vite'
+import presetWind from '@unocss/preset-wind'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -49,6 +51,9 @@ export default defineConfig({
         },
       ],
       resolvers: [ElementPlusResolver()],
+    }),
+    Unocss({
+      presets: [presetWind()],
     }),
   ],
   server: {

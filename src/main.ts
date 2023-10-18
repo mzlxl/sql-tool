@@ -4,6 +4,7 @@ import {useDark} from '@vueuse/core'
 import AppVue from './App.vue'
 import router from './router'
 
+import 'uno.css'
 import 'element-plus/theme-chalk/dark/css-vars.css'
 import 'element-plus/es/components/message/style/css'
 import 'element-plus/theme-chalk/el-message-box.css'
@@ -32,6 +33,11 @@ if (isUtoolsEnv()) {
 
     if (code === 'col2row') {
       router.push({name: '/commands/col2row'})
+      return
+    }
+
+    if (code === 'json2sql') {
+      router.push({name: '/commands/json2sql'})
       return
     }
 

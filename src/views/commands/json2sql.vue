@@ -49,7 +49,7 @@ const typeChange = () => {
         '  ]\n' +
         '}'
   } else if (type.value === 'sql2json') {
-    input.value = 'INSERT INTO (field) VALUES ("value");'
+    input.value = 'INSERT INTO table (field) VALUES ("value");'
   }
 }
 const generateResult = () => {
@@ -81,15 +81,9 @@ const clear = () => {
   result.value = ''
 }
 
-type JSON_DATA = {
-  table: string;
-  data: {}[];
-};
-
-
 // json转sql
 const jsonToSql = (jsonStr: string): string => {
-  let jsonData: JSON_DATA
+  let jsonData: any
   try {
     jsonData = JSON.parse(jsonStr)
   } catch (error) {
@@ -98,21 +92,31 @@ const jsonToSql = (jsonStr: string): string => {
   }
   const tableName = jsonData['table'];
   const columns = Object.keys(jsonData['data'][0]).join(', ');
-  const values = jsonData['data'].map(obj => `(${Object.values(obj).join(', ')})`).join(', ');
-  return `INSERT INTO ${tableName} (${columns})
-          VALUES ${values};`;
+  const values = jsonData['data'].map((obj: any) => `(${parseValues(obj)})`).join(', ');
+  return `INSERT INTO ${tableName} (${columns})` + ` VALUES ${values};`;
+}
+
+const parseValues = (obj: any): string => {
+  let arr: string[] = []
+  for (let key in obj) {
+    arr.push(typeof obj[key] === 'string' ? "\"" + obj[key] + "\"" : obj[key])
+  }
+  return arr.join(', ')
 }
 
 // sql转json
-const sqlToJson = (sql: string): JSON_DATA | null => {
+const sqlToJson = (sql: string): any | null => {
   const matches = sql.match(/INSERT INTO (\w+) \((.+)\) VALUES (.+);/);
   if (!matches) return null;
 
   const tableName = matches[1];
   const columns = matches[2].split(', ');
-  const values = matches[3].split(', ').map(val => {
+  let tmpValues = matches[3];
+  tmpValues = tmpValues.slice(1, tmpValues.length - 1)
+  const values = tmpValues.split('), (').map(val => {
     const obj: { [key: string]: any } = {};
-    val.slice(1, -1).split(', ').forEach((v, i) => obj[columns[i] as string] = v);
+    val.split(', ').forEach((v, i) => obj[columns[i] as string]
+        = v.startsWith("\"") && v.endsWith("\"") ? v.slice(1, -1) : isNumber(v) ? Number(v) : v);
     return obj;
   });
   return {
@@ -120,6 +124,14 @@ const sqlToJson = (sql: string): JSON_DATA | null => {
     data: values
   }
 }
+
+const isNumber = (value: any) => {
+  // 使用正则表达式判断是否为数字
+  const regex = /^-?\d+\.?\d*$/;
+  return regex.test(value);
+}
+
+
 </script>
 
 <style scoped lang="scss">

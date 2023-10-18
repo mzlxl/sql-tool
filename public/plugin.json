@@ -27,6 +27,11 @@
       "code": "parse-sql",
       "explain": "一个基于utools的SQL日志解析工具",
       "cmds": ["parse", "解析", "日志"]
+    },
+    {
+      "code": "json2sql",
+      "explain": "一个基于utools的SQL和JSON互相转换的工具",
+      "cmds": ["json", "转换"]
     }
   ]
 }
