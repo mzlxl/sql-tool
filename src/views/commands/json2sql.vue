@@ -1,127 +1,223 @@
 <template>
   <h2 class="m-y-20px">JSON转SQL工具</h2>
-  <el-form label-position="left" label-width="100px">
-    <el-form-item label="转换类型" class="w-250px">
-      <el-select placeholder="请选择转换类型" filterable v-model="type" onchange="typeChange">
-        <el-option v-for="item in types" :key="item.type" :value="item.type" :label="item.name"></el-option>
-      </el-select>
-    </el-form-item>
-    <el-form-item label="待转换数据">
-      <el-input type="textarea" v-model="input"
-                placeholder="请输入要待转换数据"
-                :autosize="{ minRows: 4, maxRows: 6 }"></el-input>
-    </el-form-item>
-    <el-form-item label="转换结果">
-      <el-input type="textarea" v-model="result" disabled
-                placeholder=""
-                :autosize="{ minRows: 4, maxRows: 6 }"></el-input>
-    </el-form-item>
-  </el-form>
-  <div class="m-y-20px flex items-center justify-end">
-    <el-button @click="clear">清 空</el-button>
-    <el-button type="primary" @click="generateResult">生成</el-button>
-    <el-button @click="copyResult">复制结果</el-button>
-  </div>
 
+  <el-row>
+    <el-col :span="12">
+      <div id="jsoneditor" style="height: 535px;"></div>
+      <el-button @click="copyJson" style="position: relative;left: 222px;top: 10px;">复制JSON
+      </el-button>
+    </el-col>
+    <el-col :span="3">
+      <el-row>
+        <el-button @click="jsonToSql" style="width: 70px;margin:180px auto 10px auto">SQL&nbsp;&nbsp;&gt;&gt;</el-button>
+        <el-button @click="sqlToJson" style="width: 70px;margin: 10px auto">&lt;&lt;JSON</el-button>
+        <el-button @click="example" style="width: 70px;margin: 10px auto 10px auto">示 例</el-button>
+        <el-button @click="clear" style="width: 70px;margin: 10px auto">清 空</el-button>
+      </el-row>
+    </el-col>
+    <el-col :span="9">
+      <el-input type="textarea" v-model="sqlInput" placeholder=""
+                :autosize="{ minRows: 25, maxRows: 25 }"></el-input>
+      <el-button @click="copySql" style="position: relative;left: 150px;top: 10px;">复制SQL</el-button>
+    </el-col>
+  </el-row>
 </template>
 
 <script setup lang="ts">
 import {ElMessage} from 'element-plus'
 import {copyText} from '../../utils'
+import JSONEditor from 'jsoneditor'
+import type {JSONEditorOptions} from 'jsoneditor'
+import 'jsoneditor/dist/jsoneditor.min.css'
+import {format} from 'sql-formatter';
 
-const types = ref([{name: 'JSON转SQL', type: 'json2sql'},
-  {name: 'SQL转JSON', type: 'sql2json'}])
-const type = ref('json2sql')
-const input = ref()
-const result = ref('')
 
+let editor: any
+const sqlInput = ref('')
 
 if (onMounted) {
-  onMounted(() => typeChange())
+  onMounted(() => {
+    const container = document.getElementById('jsoneditor')
+    if (container) {
+      const options: JSONEditorOptions = {
+        mode: "code",
+        modes: ["code", "tree"],
+        search: false, // 搜索
+        enableSort: false,  // 排序
+        enableTransform: false, // 设置是否启用转换功
+        navigationBar: false, // 设置导航栏是否可见
+        statusBar: true, // 设置状态栏是否可见
+      }
+      editor = new JSONEditor(container, options)
+      initJson()
+    }
+  })
+
+  onUnmounted(() => {
+    if (editor) {
+      editor.destroy()
+    }
+  })
 }
 
-const typeChange = () => {
-  if (type.value === 'json2sql') {
-    input.value = '{\n' +
-        '  "table": "table",\n' +
-        '  "data": [\n' +
-        '    { "field": "value" }\n' +
-        '  ]\n' +
-        '}'
-  } else if (type.value === 'sql2json') {
-    input.value = 'INSERT INTO table (field) VALUES ("value");'
-  }
+const initJson = () => {
+  setData({table: '', data: []})
 }
-const generateResult = () => {
-  if (!type.value) {
-    return ElMessage.info('请选择转换类型')
-  }
-  if (!input.value.trim()) {
-    return ElMessage.info('请输入要待转换数据')
-  }
 
-  if (type.value === 'json2sql') {
-    result.value = jsonToSql(input.value)
-  } else if (type.value === 'sql2json') {
-    result.value = JSON.stringify(sqlToJson(input.value))
-  } else {
-    return ElMessage.info('请选择正确的转换类型')
-  }
+const setData = (json: any) => {
+  editor.set(json)
 }
-const copyResult = () => {
-  if (!result.value || result.value.trim() == '') {
-    return ElMessage.info('请先生成转换结果')
+const getData = (): any => {
+  return editor.get()
+}
+
+const example = () => {
+  var json = {
+    table: 'table', data: [{
+      "Array": [1, 2, 3],
+      "Boolean": true,
+      "Number": 123,
+      "Object": {"a": "b", "c": {"d": "e"}},
+      "String": "Hello World"
+    }, {
+      "Array": ["1", "2", "3"],
+      "Boolean": true,
+      "Number": 123,
+      "Object": {"a": "b", "c": {"d": "e"}},
+      "String": "Hello World"
+    }]
+  };
+  setData(json)
+  jsonToSql()
+}
+
+const copyJson = () => {
+  let json: any = getData()
+  if (!json || Object.keys(json).length === 0) {
+    return ElMessage.info('请先生成JSON')
   }
-  copyText(result.value)
+  copyText(JSON.stringify(json))
+  ElMessage.success('复制成功')
+}
+const copySql = () => {
+  if (!sqlInput.value || sqlInput.value.trim() == '') {
+    return ElMessage.info('请先生成SQL')
+  }
+  copyText(sqlInput.value)
   ElMessage.success('复制成功')
 }
 
 const clear = () => {
-  input.value = ''
-  result.value = ''
+  initJson()
+  sqlInput.value = ''
 }
 
 // json转sql
-const jsonToSql = (jsonStr: string): string => {
+const jsonToSql = () => {
   let jsonData: any
   try {
-    jsonData = JSON.parse(jsonStr)
+    jsonData = getData()
   } catch (error) {
-    ElMessage.info('请输入正确的待转换数据')
-    return ''
+    sqlInput.value = ''
+    return ElMessage.info('请输入正确JSON数据')
+  }
+  if (Object.keys(jsonData).length === 0) {
+    sqlInput.value = ''
+    return ElMessage.info('请输入待转换的属性字段')
   }
   const tableName = jsonData['table'];
-  const columns = Object.keys(jsonData['data'][0]).join(', ');
-  const values = jsonData['data'].map((obj: any) => `(${parseValues(obj)})`).join(', ');
-  return `INSERT INTO ${tableName} (${columns})` + ` VALUES ${values};`;
+  if (!tableName || tableName.trim() === '') {
+    // sqlInput.value = ''
+    return ElMessage.info('请输入表名[table]属性')
+  }
+  let data: any | undefined = jsonData['data']
+  if (Array.isArray(data)) {
+    if (data.length === 0 || Object.keys(data[0]).length === 0) {
+      sqlInput.value = ''
+      return ElMessage.info('请输入[data]属性')
+    }
+  } else if (typeof data === 'object') {
+    if (Object.keys(data).length === 0) {
+      sqlInput.value = ''
+      return ElMessage.info('请输入[data]属性')
+    }
+    data = [data]
+  } else {
+    sqlInput.value = ''
+    return ElMessage.info('请输入[data]属性')
+  }
+  const columns = Object.keys(data[0]).join(', ');
+  const values = data.map((obj: any) => `(${parseValues(obj)})`).join(', ');
+  let sql = `INSERT INTO ${tableName} (${columns})` + ` VALUES ${values};`
+  sqlInput.value = format(sql, {language: 'mysql'});
 }
 
 const parseValues = (obj: any): string => {
   let arr: string[] = []
   for (let key in obj) {
-    arr.push(typeof obj[key] === 'string' ? "\"" + obj[key] + "\"" : obj[key])
+    arr.push(transferObj(obj[key]))
   }
   return arr.join(', ')
 }
 
-// sql转json
-const sqlToJson = (sql: string): any | null => {
-  const matches = sql.match(/INSERT INTO (\w+) \((.+)\) VALUES (.+);/);
-  if (!matches) return null;
+const transferObj = (obj: string): string => {
+  if (Array.isArray(obj) || typeof obj === 'object') {
+    return '"' + JSON.stringify(obj).replace(/"/g, '\\"') + '"'
+  }
+  return JSON.stringify(obj)
+}
 
+
+// sql转json
+const sqlToJson = () => {
+  let matches
+  try {
+    // 换行替换空格，连续空格再处理成单个空格
+    let sql = format(sqlInput.value, {language: 'mysql'}).trim()
+    sql = sql.endsWith(";") ? sql : sql + ';'
+    matches = sql.replace(/\n/g, ' ')
+    .replace(/ +/g, " ").match(/INSERT INTO (\w+) \((.+)\) VALUES (.+);/);
+  } catch (error) {
+  }
+  if (!matches) {
+    initJson()
+    return ElMessage.info('请输入正确的SQL');
+  }
   const tableName = matches[1];
   const columns = matches[2].split(', ');
   let tmpValues = matches[3];
-  tmpValues = tmpValues.slice(1, tmpValues.length - 1)
+  tmpValues = tmpValues.slice(1, -1)
+  if (!tableName || !columns || columns.length === 0 || !tmpValues) {
+    initJson()
+    return ElMessage.info('请输入正确的SQL')
+  }
   const values = tmpValues.split('), (').map(val => {
     const obj: { [key: string]: any } = {};
-    val.split(', ').forEach((v, i) => obj[columns[i] as string]
-        = v.startsWith("\"") && v.endsWith("\"") ? v.slice(1, -1) : isNumber(v) ? Number(v) : v);
+    val.split(', ').forEach((v, i) => obj[columns[i] as string] = parsecolumnValue(v));
     return obj;
   });
-  return {
+  setData({
     table: tableName,
     data: values
+  })
+}
+
+const parsecolumnValue = (v: string): any => {
+  let data = JSON.parse(v)
+  if (isNumber(v)) {
+    return Number(v)
+  } else if (Array.isArray(data) || typeof data === 'boolean' || typeof data === 'object') {
+    return data
+  } else {
+    try {
+      data = JSON.parse(data)
+    } catch (e) {
+      return data
+    }
+    if (Array.isArray(data) || typeof data === 'object') {
+      return data
+    }
+    return v
   }
 }
 
@@ -135,7 +231,5 @@ const isNumber = (value: any) => {
 </script>
 
 <style scoped lang="scss">
-:deep(.el-textarea__inner) {
-  resize: none;
-}
+
 </style>

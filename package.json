@@ -12,6 +12,7 @@
     "@element-plus/icons-vue": "^2.1.0",
     "@vueuse/core": "^10.3.0",
     "element-plus": "^2.3.9",
+    "jsoneditor": "^9.10.3",
     "lodash.clonedeep": "^4.5.0",
     "pinia": "^2.1.6",
     "sql-formatter": "^13.0.0",
@@ -19,6 +20,7 @@
     "vue-router": "^4.2.4"
   },
   "devDependencies": {
+    "@types/jsoneditor": "^9.9.2",
     "@types/lodash.clonedeep": "^4.5.7",
     "@types/node": "^20.5.1",
     "@unocss/preset-wind": "^0.55.1",
