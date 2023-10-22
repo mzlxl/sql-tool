@@ -4,7 +4,8 @@
 ## 功能列表
 - 分库分表工具：快捷生成分库分表路由SQL，并支持历史记录显示和应用
 - 列转行工具：列转行&行转列，快速生成SQL查询条件
-- SQL日志解析：通用SQL参数拼接，以及特有 shardingsphere sql日志解析
+- SQL日志解析：通用SQL参数拼接，以及mybatis sql日志解析、 shardingsphere sql日志解析
+- JSON转SQL：JSON和SQL互转的工具
 - 漂亮SQL工具：SQL格式化工具
 - 关于插件：插件说明
 
