@@ -9,7 +9,8 @@
     </el-form-item>
     <el-form-item label="SQL日志样本">
       <span slot="label" style="position: absolute;left: -25px;top:2px">
-        <el-tooltip class="item" effect="dark" :content="type === 'ShardingSphere'?shardingSphereExample:normalExample"
+        <el-tooltip class="item" effect="dark"
+                    :content="type === 'ShardingSphere'?shardingSphereExample: type === 'mybatis'?mybatisExample:normalExample"
                     placement="top" style="position: fixed">
           <el-icon @click="copySqlExample"><Warning/> </el-icon>
         </el-tooltip>
@@ -49,9 +50,9 @@ import {ElMessage} from 'element-plus'
 import {copyText} from '../../utils'
 import {format} from 'sql-formatter';
 
-const types = ref([{name: '通用SQL日志解析', type: 'normal'},
+const types = ref([{name: '通用SQL日志解析', type: 'normal'}, {name: 'mybatis日志解析', type: 'mybatis'},
   {name: 'ShardingSphere SQL日志解析', type: 'ShardingSphere'}])
-const type = ref('normal')
+const type = ref('mybatis')
 const separator = ref('_')
 
 let numSuffixes = ["(Boolean)", "(Integer)", "(Double)", "(Long)", "(Float)", "(BigDecimal)", "(Timestamp)", "(Byte[])"];
@@ -60,16 +61,19 @@ const sqlSample = ref('')
 const paramSample = ref('')
 const sqlResult = ref('')
 const shardingSphereExample = ref('示例：Actual SQL: dbName ::: SELECT *  FROM tableName WHERE  a=? AND b=? AND c=? ::: [1,b,c(String)]')
-const normalExample = ref('示例：SELECT *  FROM tableName WHERE  a=? AND b=? AND c=?')
+const normalExample = ref('示例：SELECT *  FROM tableName WHERE a=? AND b=? AND c=?')
 const paramExample = ref('示例：[1,b,c(String)]')
+const mybatisExample = ref('示例：DEBUG [main] org.mybatis.example.BlogMapper.selectBlogWithPosts - ==>  Preparing: SELECT * FROM tableName WHERE a=? AND b=? AND c=?\n' +
+    'DEBUG [main] org.mybatis.example.BlogMapper.selectBlogWithPosts - ==> Parameters: 1,b,c(String)')
 
 const generateResult = () => {
   if (!sqlSample.value || sqlSample.value.trim() == '') {
     ElMessage.info(`请输入要解析的SQL日志样本`)
     return
   }
-
-  if (type.value === 'ShardingSphere') {
+  if (type.value === 'mybatis') {
+    generateMybatisResult()
+  } else if (type.value === 'ShardingSphere') {
     generateShardingSphereResult()
   } else {
     generateNormalResult()
@@ -88,6 +92,20 @@ const generateNormalResult = () => {
   let params: any[] = []
   parse2Arr(params, paramsStr)
   sqlResult.value = parseSql(sqlSampleValue, params);
+}
+
+const generateMybatisResult = () => {
+  let sqlSampleValue = sqlSample.value
+  let sqlEndIndex = sqlSampleValue.indexOf('\n')
+  sqlEndIndex = sqlEndIndex > 0 ? sqlEndIndex : sqlSampleValue.indexOf('DEBUG', 10)
+  let sql: string = sqlSampleValue.slice(sqlSampleValue.indexOf('Preparing:') + 10, sqlEndIndex).trim()
+  let paramsStr: string = sqlSampleValue.slice(sqlSampleValue.indexOf('Parameters:') + 11, sqlSampleValue.length).trim()
+  // 替换换行为空格  再将连续空格再处理成单个空格
+  sql = sql.replace(/\n/g, ' ').replace(/ +/g, " ")
+  paramsStr = paramsStr.replace(/\n/g, ' ').replace(/ +/g, " ")
+  let params: any[] = []
+  parse2Arr(params, paramsStr)
+  sqlResult.value = parseSql(sql, params);
 }
 
 // 解析shardingsphere
@@ -259,7 +277,8 @@ const copyResult = () => {
 }
 
 const copySqlExample = () => {
-  sqlSample.value = type.value === 'ShardingSphere' ? shardingSphereExample.value.replace('示例：', '') : normalExample.value.replace('示例：', '')
+  sqlSample.value = type.value === 'ShardingSphere' ? shardingSphereExample.value.replace('示例：', '') :
+      type.value === 'mybatis' ? mybatisExample.value.replace('示例：', '') : normalExample.value.replace('示例：', '')
 }
 
 const copyParamExample = () => {
