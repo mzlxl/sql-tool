@@ -54,6 +54,8 @@ const types = ref([{name: '通用SQL日志解析', type: 'normal'},
 const type = ref('normal')
 const separator = ref('_')
 
+let numSuffixes = ["(Boolean)", "(Integer)", "(Double)", "(Long)", "(Float)", "(BigDecimal)", "(Timestamp)", "(Byte[])"];
+
 const sqlSample = ref('')
 const paramSample = ref('')
 const sqlResult = ref('')
@@ -79,34 +81,101 @@ const generateNormalResult = () => {
     ElMessage.info(`请输入要解析的参数日志样本`)
     return
   }
-  let param = paramSample.value.trim()
-  param = param.startsWith('[') && param.endsWith(']') ?
-      param.slice(1, param.length - 1) : param
-  sqlResult.value = parseSql(sqlSample.value, param.split(","));
+  // 替换换行为空格  再将连续空格再处理成单个空格
+  let sqlSampleValue = sqlSample.value.replace(/\n/g, ' ').replace(/ +/g, " ")
+  let paramsStr = paramSample.value.trim().replace(/\n/g, ' ').replace(/ +/g, " ")
+  paramsStr = paramsStr.startsWith('[') && paramsStr.endsWith(']') ? paramsStr.slice(1, -1) : paramsStr
+  let params: any[] = []
+  parse2Arr(params, paramsStr)
+  sqlResult.value = parseSql(sqlSampleValue, params);
 }
 
+// 解析shardingsphere
 const generateShardingSphereResult = () => {
-  let sqlSampleValue = sqlSample.value.trim().replace('Actual SQL: ', '')
+  // 替换换行为空格  再将连续空格再处理成单个空格
+  let sqlSampleValue = sqlSample.value.replace(/\n/g, ' ').replace(/ +/g, " ")
+  sqlSampleValue = sqlSampleValue.slice(sqlSampleValue.indexOf('Actual SQL:') + 11, sqlSampleValue.length).trim()
   let sql = ''
   let dbName = ''
-  let values = sqlSampleValue.slice(sqlSampleValue.indexOf('::: [') + 5, sqlSampleValue.indexOf(']')).split(",");
+  let paramsStr: string = sqlSampleValue.slice(sqlSampleValue.indexOf('::: [') + 5, sqlSampleValue.lastIndexOf(']'))
+  let params: any[] = []
+  parse2Arr(params, paramsStr.trim())
 
   let countSeq = countSeparator(sqlSample.value, ':::')
   if (countSeq == 1) {
     sql = sqlSampleValue.slice(0, sqlSampleValue.indexOf('::: ['));
   } else if (countSeq == 2) {
     sql = sqlSampleValue.slice(sqlSampleValue.indexOf(':::') + 4, sqlSampleValue.indexOf('::: ['));
-    dbName = parseDbName(sqlSampleValue)
+    dbName = parseShardingSphereDbName(sqlSampleValue)
   } else {
-    ElMessage.info(`请输入要正确的SQL日志和参数样本`)
-    return
+    return ElMessage.info(`请输入要正确的SQL日志和参数样本`)
   }
 
-  sql = sql.replace(/FROM /g, 'FROM ' + dbName + (dbName ? '.' : '')).replace(/from /g, 'from ' + dbName + '.')
-  sqlResult.value = parseSql(sql, values);
+  sql = replaceDbName(sql, 'FROM ', dbName)
+  sql = replaceDbName(sql, 'INSERT INTO ', dbName)
+  sql = replaceDbName(sql, 'UPDATE ', dbName)
+  sqlResult.value = parseSql(sql, params);
 }
 
-const parseDbName = (sql: string): string => {
+const replaceDbName = (sql: string, dbBeforeStr: string, dbName: string): string => {
+  if (!sql) {
+    return ''
+  }
+  let replaceSql = sql.replace(eval('/' + dbBeforeStr.toLowerCase() + '/g'), dbBeforeStr.toLowerCase() + dbName + (dbName ? '.' : ''))
+  return sql.replace(eval('/' + dbBeforeStr.toUpperCase() + '/g'), dbBeforeStr.toUpperCase() + dbName + (dbName ? '.' : ''))
+}
+
+// 解析参数到数组中
+const parse2Arr = (arr: any[], params: string) => {
+  params = params.trim()
+  if (!params) {
+    return
+  }
+  if (params.indexOf(',') < 0) {
+    arr.push(params)
+  } else {
+    let isObj: boolean = tryParseObj(arr, params, '{', '}', 0) || tryParseObj(arr, params, '[', ']', 0)
+    if (!isObj) {
+      arr.push(params.slice(0, params.indexOf(',')))
+      parse2Arr(arr, params.slice(params.indexOf(',') + 1, params.length).trim())
+    }
+  }
+}
+
+const tryParseObj = (arr: any[], params: string, seqStart: string, seqEnd: string, index: number): boolean => {
+  let indexEnd = params.indexOf(seqEnd, index) + 1
+  if (!params.startsWith(seqStart) || indexEnd <= 1) {
+    // 不是对象和数组开头  或者不包含seqEnd
+    return false
+  }
+  // 截取0-indexEnd的字符串，尝试去转换对象，如果转换成功，则证明此段截取内容为完成对象
+  let subStr: string = params.slice(0, indexEnd)
+  let obj = parseObj(subStr)
+  if (obj) {
+    // 将对象添加到参数数组中 并递归去找下一个参数
+    arr.push(obj)
+    parse2Arr(arr, params.slice(indexEnd + 1, params.length).trim())
+    return true
+  } else {
+    // 根据当前的indexEnd继续找下一个seqEnd，尝试截取到下一个seqEnd看是不是一个对象
+    return tryParseObj(arr, params, seqStart, seqEnd, indexEnd)
+  }
+}
+
+const parseObj = (str: string): any | null => {
+  try {
+    return JSON.parse(str)
+  } catch (e) {
+    try {
+      return JSON.parse(str.replace(/\\"/g, '"'))
+    } catch (e) {
+      return null
+    }
+  }
+}
+
+// 解析sharingsphere的库名
+const parseShardingSphereDbName = (sql: string): string => {
   let dbName = sql.slice(0, sql.indexOf(':::')).trim()
   if (!dbName) {
     return ''
@@ -125,28 +194,35 @@ const parseDbName = (sql: string): string => {
   return dbName.replace(/-/g, separator.value).replace(/_/g, separator.value);
 }
 
-const parseSql = (sql: string, values: string[]): string => {
-  if (!checkInput(sql, values)) {
+// 解析出sql
+const parseSql = (sql: string, params: any[]): string => {
+  if (!checkInputParamCount(sql, params)) {
     ElMessage.info(`请输入要正确的SQL日志和参数样本`)
     return '';
   }
-  return sql.replace(/\?/g, (substring: string) => replaceParamType(values.shift()) || substring);
+  // 将参数替换到问号中
+  return sql.replace(/\?/g, (substring: string) => parseParamByType(params.shift()) || substring);
 }
 
-const checkInput = (sql: string, values: string[]): boolean => {
-  return countSeparator(sql, '\\?') === values.length
+// 检查输入值的问号数量和参数数量是否一致
+const checkInputParamCount = (sql: string, params: string[]): boolean => {
+  return countSeparator(sql, '\\?') === params.length
 }
 
+// 计算符号数量
 const countSeparator = (sample: string, seq: string) => {
   let questionMarks = sample.match(eval('/' + seq + '/g'))
   return questionMarks ? questionMarks.length : 0
 }
 
-const replaceParamType = (p: string | undefined): string => {
+const parseParamByType = (p: any | undefined): string => {
   if (!p) {
     return ''
   }
   let param = p.toString().trim()
+  if (typeof p === 'object') {
+    param = JSON.stringify(p)
+  }
   let numSuffixes = ["(Boolean)", "(Integer)", "(Double)", "(Long)", "(Float)", "(BigDecimal)", "(Timestamp)", "(Byte[])"];
   let stringSuffixes = ["(String)", "(Date)"];
   if (numSuffixes.some(item => param.endsWith(item))) {
@@ -155,21 +231,16 @@ const replaceParamType = (p: string | undefined): string => {
     param = param.slice(0, param.lastIndexOf("("))
     return '"' + param.replace(/"/g, '\\"') + '"'
   } else {
-    return isNumber(param) ? param : '"' + param.replace(/"/g, '\\"') + '"'
+    let obj = parseObj(param)
+    if (obj && typeof obj === 'number') {
+      return obj.toString()
+    }
+    return '"' + param.replace(/"/g, '\\"') + '"'
   }
-}
-
-const isNumber = (value: any) => {
-  // 使用正则表达式判断是否为数字
-  const regex = /^-?\d+\.?\d*$/;
-  return regex.test(value);
 }
 
 const formatSql = () => {
-  if (!sqlResult.value || sqlResult.value.trim() == '') {
-    ElMessage.info(`请先生成SQL`)
-    return
-  }
+  generateResult()
 
   try {
     sqlResult.value = format(sqlResult.value, {language: 'mysql'})
@@ -198,11 +269,10 @@ const copyParamExample = () => {
 const clear = () => {
   sqlResult.value = ''
   sqlSample.value = ''
+  paramSample.value = ''
 }
 </script>
 
 <style scoped lang="scss">
-:deep(.el-textarea__inner) {
-  resize: none;
-}
+
 </style>
