@@ -50,8 +50,8 @@ import {ElMessage} from 'element-plus'
 import {copyText} from '../../utils'
 import {format} from 'sql-formatter';
 
-const types = ref([{name: '通用SQL日志解析', type: 'normal'}, {name: 'mybatis日志解析', type: 'mybatis'},
-  {name: 'ShardingSphere SQL日志解析', type: 'ShardingSphere'}])
+const types = ref([{name: 'mybatis日志解析', type: 'mybatis'},
+  {name: 'ShardingSphere SQL日志解析', type: 'ShardingSphere'}, {name: '通用SQL日志解析', type: 'normal'}])
 const type = ref('mybatis')
 const separator = ref('_')
 
