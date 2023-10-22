@@ -26,7 +26,7 @@
     {
       "code": "parse-sql",
       "explain": "一个基于utools的SQL日志解析工具",
-      "cmds": ["parse", "解析", "日志"]
+      "cmds": ["parse", "解析", "日志", "mybatis"]
     },
     {
       "code": "json2sql",
