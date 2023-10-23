@@ -46,6 +46,11 @@ if (isUtoolsEnv()) {
       router.push({name: '/commands/parse-sql'})
       return
     }
+
+    if (code === 'excel2sql') {
+      router.push({name: '/commands/excel2sql'})
+      return
+    }
   })
 
   utools.onMainPush?.(

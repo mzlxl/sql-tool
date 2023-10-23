@@ -32,6 +32,11 @@
       "code": "json2sql",
       "explain": "一个基于utools的SQL和JSON互相转换的工具",
       "cmds": ["json", "转换"]
+    },
+    {
+      "code": "excel2sql",
+      "explain": "一个基于utools的excel转SQL工具",
+      "cmds": ["excel","file"]
     }
   ]
 }

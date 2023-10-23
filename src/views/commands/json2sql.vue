@@ -25,7 +25,7 @@
 
 <script setup lang="ts">
 import {ElMessage} from 'element-plus'
-import {copyText} from '../../utils'
+import {copyText, json2sql, isNumber} from '../../utils'
 import JSONEditor from 'jsoneditor'
 import type {JSONEditorOptions} from 'jsoneditor'
 import 'jsoneditor/dist/jsoneditor.min.css'
@@ -114,59 +114,14 @@ const clear = () => {
 
 // json转sql
 const jsonToSql = () => {
-  let jsonData: any
   try {
-    jsonData = getData()
+    let sql = json2sql(getData())
+    sqlInput.value = sql ? sql : ''
   } catch (error) {
     sqlInput.value = ''
     return ElMessage.info('请输入正确JSON数据')
   }
-  if (Object.keys(jsonData).length === 0) {
-    sqlInput.value = ''
-    return ElMessage.info('请输入待转换的属性字段')
-  }
-  const tableName = jsonData['table'];
-  if (!tableName || tableName.trim() === '') {
-    // sqlInput.value = ''
-    return ElMessage.info('请输入表名[table]属性')
-  }
-  let data: any | undefined = jsonData['data']
-  if (Array.isArray(data)) {
-    if (data.length === 0 || Object.keys(data[0]).length === 0) {
-      sqlInput.value = ''
-      return ElMessage.info('请输入[data]属性')
-    }
-  } else if (typeof data === 'object') {
-    if (Object.keys(data).length === 0) {
-      sqlInput.value = ''
-      return ElMessage.info('请输入[data]属性')
-    }
-    data = [data]
-  } else {
-    sqlInput.value = ''
-    return ElMessage.info('请输入[data]属性')
-  }
-  const columns = Object.keys(data[0]).join(', ');
-  const values = data.map((obj: any) => `(${parseValues(obj)})`).join(', ');
-  let sql = `INSERT INTO ${tableName} (${columns})` + ` VALUES ${values};`
-  sqlInput.value = format(sql, {language: 'mysql'});
 }
-
-const parseValues = (obj: any): string => {
-  let arr: string[] = []
-  for (let key in obj) {
-    arr.push(transferObj(obj[key]))
-  }
-  return arr.join(', ')
-}
-
-const transferObj = (obj: string): string => {
-  if (Array.isArray(obj) || typeof obj === 'object') {
-    return '"' + JSON.stringify(obj).replace(/"/g, '\\"') + '"'
-  }
-  return JSON.stringify(obj)
-}
-
 
 // sql转json
 const sqlToJson = () => {
@@ -193,7 +148,7 @@ const sqlToJson = () => {
   }
   const values = tmpValues.split('), (').map(val => {
     const obj: { [key: string]: any } = {};
-    val.split(', ').forEach((v, i) => obj[columns[i] as string] = parsecolumnValue(v));
+    val.split(', ').forEach((v, i) => obj[columns[i] as string] = parseColumnValue(v));
     return obj;
   });
   setData({
@@ -202,7 +157,7 @@ const sqlToJson = () => {
   })
 }
 
-const parsecolumnValue = (v: string): any => {
+const parseColumnValue = (v: string): any => {
   let data = JSON.parse(v)
   if (isNumber(v)) {
     return Number(v)
@@ -220,13 +175,6 @@ const parsecolumnValue = (v: string): any => {
     return v
   }
 }
-
-const isNumber = (value: any) => {
-  // 使用正则表达式判断是否为数字
-  const regex = /^-?\d+\.?\d*$/;
-  return regex.test(value);
-}
-
 
 </script>
 

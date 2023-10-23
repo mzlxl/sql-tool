@@ -6,6 +6,7 @@
 - 列转行工具：列转行&行转列，快速生成SQL查询条件
 - SQL日志解析：通用SQL参数拼接，以及mybatis sql日志解析、 shardingsphere sql日志解析
 - JSON转SQL：JSON和SQL互转的工具
+- EXCEL转SQL：EXCEL转SQL的工具，支持基础的增删改语句
 - 漂亮SQL工具：SQL格式化工具
 - 关于插件：插件说明
 
