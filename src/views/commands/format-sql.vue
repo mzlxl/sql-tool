@@ -2,7 +2,7 @@
   <h2 class="m-y-20px">SQL美化工具</h2>
   <el-form label-position="left" label-width="110px">
     <el-form-item label="数据库类型：">
-      <el-select placeholder="请选择SQL语言类型" filterable v-model="type" class="w-220px">
+      <el-select placeholder="请选择数据库类型" filterable v-model="type" class="w-220px">
         <el-option v-for="item in types" :key="item.type" :value="item.type" :label="item.name"></el-option>
       </el-select>
     </el-form-item>
@@ -25,7 +25,7 @@
 
   <div>
     <span style="color: #999">数据库类型说明：</span>
-    <el-link type="primary" v-for="item in types" @click="clickLink(item)">{{ item.name }}</el-link>
+    <el-link type="primary" v-for="item in types" v-show="item.link" @click="clickLink(item)">{{ item.name }}</el-link>
   </div>
 
 </template>
@@ -36,8 +36,8 @@ import {copyText, openUrl} from '../../utils'
 import {format} from 'sql-formatter';
 
 const types = ref([
+  {type: 'sql', name: '自动检测', link: ''},
   {type: 'mysql', name: 'MySQL', link: 'https://www.mysql.com/'},
-  {type: 'sql', name: 'Standard SQL', link: 'https://en.wikipedia.org/wiki/SQL:2011'},
   {type: 'plsql', name: 'Oracle PL/SQL', link: 'http://www.oracle.com/technetwork/database/features/plsql/index.html'},
   {type: 'bigquery', name: 'GCP BigQuery', link: 'https://cloud.google.com/bigquery'},
   {type: 'db2', name: 'IBM DB2', link: 'https://www.ibm.com/analytics/us/en/technology/db2/'},
@@ -60,7 +60,7 @@ const types = ref([
   {type: 'sqlite', name: 'SQLite', link: 'https://sqlite.org/index.html'},
   {type: 'transactsql', name: 'SQL Server Transact-SQL', link: 'https://docs.microsoft.com/en-us/sql/sql-server/'},
   {type: 'trino', name: 'Trino', link: 'https://trino.io/docs/current/'}])
-const type = ref('mysql')
+const type = ref('sql')
 const sql = ref('')
 const sqlResult = ref('')
 
@@ -73,7 +73,10 @@ const generateResult = () => {
     sqlResult.value = format(sql.value, {language: type.value})
   } catch (e) {
     sqlResult.value = ''
-    return ElMessage.error('请输入正确语言类型的SQL')
+    if (type.value === 'sql') {
+      return ElMessage.error('自动检测SQL失败，请指定正确的数据库类型')
+    }
+    return ElMessage.error('请输入正确数据库类型的SQL')
   }
 }
 
