@@ -13,6 +13,7 @@
 ## 支持平台
 - utools：请将.upx后缀的安装包拖入到utools安装插件使用
 - chrome：在谷歌浏览器方案chrome://extensions/  选择dist文件夹安装插件
+注意：有些新功能没有取兼容chrome插件，不推荐使用chrome
 
 ## 如何部署
 
