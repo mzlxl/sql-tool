@@ -59,7 +59,7 @@ const types = ref([
   {type: 'sqlite', name: 'SQLite', link: 'https://sqlite.org/index.html'},
   {type: 'transactsql', name: 'SQL Server Transact-SQL', link: 'https://docs.microsoft.com/en-us/sql/sql-server/'},
   {type: 'trino', name: 'Trino', link: 'https://trino.io/docs/current/'}])
-const type = ref('sql')
+const type = ref('mysql')
 const sql = ref('')
 const sqlResult = ref('')
 
