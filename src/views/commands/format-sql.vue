@@ -34,8 +34,9 @@ import {ElMessage} from 'element-plus'
 import {copyText, openUrl} from '../../utils'
 import {format} from 'sql-formatter';
 
-const types = ref([{type: 'sql', name: 'Standard SQL', link: 'https://en.wikipedia.org/wiki/SQL:2011'},
+const types = ref([
   {type: 'mysql', name: 'MySQL', link: 'https://www.mysql.com/'},
+  {type: 'sql', name: 'Standard SQL', link: 'https://en.wikipedia.org/wiki/SQL:2011'},
   {type: 'plsql', name: 'Oracle PL/SQL', link: 'http://www.oracle.com/technetwork/database/features/plsql/index.html'},
   {type: 'bigquery', name: 'GCP BigQuery', link: 'https://cloud.google.com/bigquery'},
   {type: 'db2', name: 'IBM DB2', link: 'https://www.ibm.com/analytics/us/en/technology/db2/'},
