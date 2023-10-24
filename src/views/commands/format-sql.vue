@@ -1,17 +1,17 @@
 <template>
   <h2 class="m-y-20px">SQL美化工具</h2>
-  <el-form label-position="left" label-width="100px">
-    <el-form-item label="SQL语言类型">
+  <el-form label-position="left" label-width="110px">
+    <el-form-item label="数据库类型：">
       <el-select placeholder="请选择SQL语言类型" filterable v-model="type" class="w-220px">
         <el-option v-for="item in types" :key="item.type" :value="item.type" :label="item.name"></el-option>
       </el-select>
     </el-form-item>
-    <el-form-item label="待美化SQL">
+    <el-form-item label="待美化SQL：">
       <el-input type="textarea" v-model="sql"
                 placeholder="请输入要美化的SQL样本"
                 :autosize="{ minRows: 4, maxRows: 4 }"></el-input>
     </el-form-item>
-    <el-form-item label="SQL美化结果">
+    <el-form-item label="SQL美化结果：">
       <el-input type="textarea" v-model="sqlResult" disabled
                 placeholder=""
                 :autosize="{ minRows: 10, maxRows: 15 }"></el-input>
@@ -23,7 +23,8 @@
     <el-button @click="copyResult">复制结果</el-button>
   </div>
 
-  <div style="margin-left: 30px">
+  <div>
+    <span style="color: #999">数据库类型说明：</span>
     <el-link type="primary" v-for="item in types" @click="clickLink(item)">{{ item.name }}</el-link>
   </div>
 
@@ -89,7 +90,7 @@ const clear = () => {
   sql.value = ''
 }
 
-const clickLink = (item:any) => openUrl(item['link'])
+const clickLink = (item: any) => openUrl(item['link'])
 
 </script>
 
@@ -97,6 +98,7 @@ const clickLink = (item:any) => openUrl(item['link'])
 .el-link {
   margin-right: 20px;
 }
+
 .el-link .el-icon--right.el-icon {
   vertical-align: text-bottom;
 }
