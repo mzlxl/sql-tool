@@ -9,7 +9,7 @@
     <el-form-item label="待美化SQL">
       <el-input type="textarea" v-model="sql"
                 placeholder="请输入要美化的SQL样本"
-                :autosize="{ minRows: 4, maxRows: 6 }"></el-input>
+                :autosize="{ minRows: 4, maxRows: 4 }"></el-input>
     </el-form-item>
     <el-form-item label="SQL美化结果">
       <el-input type="textarea" v-model="sqlResult" disabled
