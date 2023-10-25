@@ -70,14 +70,17 @@ export const json2sql = (jsonData: any): string | undefined => {
 }
 
 const parseValues = (obj: any): string => {
-  let arr: string[] = []
+  let arr: any[] = []
   for (let key in obj) {
     arr.push(transferObj(obj[key]))
   }
-  return arr.join(', ')
+  return arr.map(item => String(item)).join(",")
 }
 
-const transferObj = (obj: string): string => {
+const transferObj = (obj: string): string | null => {
+  if (!obj) {
+    return null
+  }
   if (Array.isArray(obj) || typeof obj === 'object') {
     return '"' + JSON.stringify(obj).replace(/"/g, '\\"') + '"'
   }
