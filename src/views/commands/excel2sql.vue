@@ -94,6 +94,9 @@ function parseJsonByFile(file: File) {
     const workbook = XLSX.read(data, {type: 'array'});
     const worksheet = workbook.Sheets[workbook.SheetNames[0]];
     const sheetRange = worksheet['!ref']; // 区域范围字符串，例如 "A1:C20"
+    if(!sheetRange){
+      return ElMessage.error('EXCEL文件读取失败，请重试')
+    }
     // 解析区域范围字符串，获取起始行、起始列、结束行和结束列的索引
     const [startCell, endCell] = sheetRange.split(':');
     const startCol = XLSX.utils.decode_col(startCell.replace(/\d+/g, ''));
