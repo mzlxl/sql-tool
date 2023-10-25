@@ -64,28 +64,63 @@ export const json2sql = (jsonData: any, type: string): string | undefined => {
     return
   }
 
-  const columns = Object.keys(data[0]).join(', ');
   let sql = ''
   if (type === 'INSERT') {
-    const values = data.map((obj: any) => `(${parseValues(obj)})`).join(', ');
-    sql = `INSERT INTO ${tableName} (${columns})` + ` VALUES ${values};`
+    const columns = Object.keys(data[0]).join(', ').replace(/.where/g, '')
+    const values: string = data.map((obj: any) => `(${parseValues(obj)})`).join(', ');
+    if (!values.trim()) {
+      ElMessage.error('缺少插入数据，请修改重试')
+      return ''
+    }
+    return format(`INSERT INTO ${tableName} (${columns})` + ` VALUES ${values};`, {language: 'mysql'})
   } else if (type === 'UPDATE') {
-    const setValues = data.map((obj: any) => `(${parseKvValues(obj)})`).join(', ');
-    const whereValues = data.map((obj: any) => `(${parseKvValues(obj)})`).join(' AND ');
-    sql = `UPDATE ${tableName}
-           SET (${setValues})` + ` WHERE ${whereValues};`
+    let sqlArr: string[] = []
+    for (let obj of data) {
+      let wheres = parseWheres(obj, type)
+      let sets = parseSets(obj)
+      if (!wheres.trim() || !sets.trim()) {
+        ElMessage.error('缺少更新条件或参数，请修改重试')
+        return ''
+      }
+      sqlArr.push(`UPDATE ${tableName}` + ` SET ${sets}` + ` WHERE ${wheres};`)
+    }
+    sql = sqlArr.join('\n');
   } else if (type === 'DELETE') {
-    const whereValues = data.map((obj: any) => `(${parseKvValues(obj)})`).join(' AND ');
-    sql = `DELETE
-           FROM ${tableName}
-           WHERE ${whereValues};`
+    let sqlArr: string[] = []
+    for (let obj of data) {
+      let wheres = parseWheres(obj, type)
+      if (!wheres.trim()) {
+        ElMessage.error('缺少删除条件，请修改重试')
+        return ''
+      }
+      sqlArr.push(`DELETE` + ` FROM ${tableName}` + ` WHERE ${wheres};`)
+    }
+    sql = sqlArr.join('\n');
+  } else {
+    ElMessage.error('SQL类型识别失败，请修改重试')
+    return ''
   }
-  return format(sql, {language: 'mysql'});
+  return sql;
 }
 
-const parseKvValues = (obj: any): string => {
+const parseWheres = (obj: any, type: string): string => {
+  let arr: string[] = []
+  for (let key in obj) {
+    if (type !== 'UPDATE' || key.toLowerCase().endsWith('.where')) {
+      arr.push(`${key.endsWith('.where')?key.slice(0,-6):key}=${transferObj(obj[key])}`)
+    }
+  }
+  return arr.join(" AND ")
+}
 
-  return ''
+const parseSets = (obj: any): string => {
+  let arr: string[] = []
+  for (let key in obj) {
+    if (!key.toLowerCase().endsWith('.where')) {
+      arr.push(`${key}=${transferObj(obj[key])}`)
+    }
+  }
+  return arr.map(item => String(item)).join(", ")
 }
 
 const parseValues = (obj: any): string => {

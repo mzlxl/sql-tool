@@ -11,11 +11,11 @@
       <upload-filled/>
     </el-icon>
     <div class="el-upload__text">
-      请拖入文件 或 <em>点击选择文件</em>  后缀必须是xlsx,xls
+      请拖入文件 或 <em>点击选择文件</em> 后缀必须是xlsx,xls
     </div>
     <template #tip>
       <div class="el-upload__tip">
-        文件大小不超过{{maxSize}}M，且只会读取第一个sheet前{{ maxRow }}行和前{{
+        文件大小不超过{{ maxSize }}M，且只会读取第一个sheet前{{ maxRow }}行和前{{
           maxCol
         }}列数据，大文件读取可能导致窗口卡死。注意：单元格空值会输出空(null)，如果想输出空字符串，可在单元格填写''
       </div>
@@ -27,14 +27,14 @@
         <el-form-item label="生成SQL类型：" class="w-600px">
         <span slot="label" style="position: absolute;left: -25px;top:2px">
         <el-tooltip class="item" effect="dark"
-                    content="下一个版本支持类型选择，敬请期待！"
+                    :content="tips"
                     placement="top" style="position: fixed">
           <el-icon><Warning/> </el-icon>
         </el-tooltip>
       </span>
-          <el-select placeholder="请选择生成SQL类型" filterable v-model="type" class="w-150px" disabled>
+          <el-select placeholder="请选择生成SQL类型" filterable v-model="type" class="w-150px" @change="typeChange">
             <el-option v-for="item in types" :key="item.type" :value="item.type"
-                       :label="item.name" @change="typeChange"></el-option>
+                       :label="item.name"></el-option>
           </el-select>
         </el-form-item>
       </el-col>
@@ -71,7 +71,7 @@ const maxSize = 10; // 10MB
 const maxRow = 10000
 const maxCol = 30
 
-const handleBeforeUpload = (file: File) => {
+const handleBeforeUpload = (file: File): boolean => {
   showMainWindow()
   if (file.size > maxSize * 1024 * 1024) {
     ElMessage.error('超过文件大小限制')
@@ -94,7 +94,7 @@ function parseJsonByFile(file: File) {
     const workbook = XLSX.read(data, {type: 'array'});
     const worksheet = workbook.Sheets[workbook.SheetNames[0]];
     const sheetRange = worksheet['!ref']; // 区域范围字符串，例如 "A1:C20"
-    if(!sheetRange){
+    if (!sheetRange) {
       return ElMessage.error('EXCEL文件读取失败，请重试')
     }
     // 解析区域范围字符串，获取起始行、起始列、结束行和结束列的索引
@@ -138,12 +138,13 @@ function parseJsonByFile(file: File) {
 
 const typeChange = () => {
   if (type.value === 'UPDATE') {
-    tips.value = 'UPDATE:在INSERT规范上增加了一列，列名必须为WHERE或where，更新语句中将会以该列作为更新条件'
+    tips.value = 'UPDATE:表头为字段名，内容行则为更新数据部分，通过在表头列增加.where后缀标识是更新where条件列'
   } else if (type.value === 'DELETE') {
     tips.value = 'DELETE:表头为字段名，内容行则为删除的where条件'
   } else {
     tips.value = 'INSERT:表头为字段名，内容行则为插入数据部分'
   }
+  result.value = ''
 }
 
 const copySql = () => {
