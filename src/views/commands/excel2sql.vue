@@ -15,7 +15,7 @@
     </div>
     <template #tip>
       <div class="el-upload__tip">
-        请选择后缀名为xlsx,xls的EXCEL文件，文件大小不超过10M，且只会读取第一个sheet前{{ maxRow }}行和前{{
+        请选择后缀名为xlsx,xls的文件，文件大小不超过{{maxSize}}M，且只会读取第一个sheet前{{ maxRow }}行和前{{
           maxCol
         }}列数据，不然可能导致窗口卡死。注意：表格没有值会转换为空字符串'' ，表格为字符串'null'会转换成sql中的null
       </div>
@@ -67,13 +67,13 @@ const type = ref('INSERT')
 const tableName = ref('')
 const tips = ref('INSERT:表头为字段名，内容行则为插入数据部分')
 const result = ref('')
-const maxSize = 10 * 1024 * 1024; // 10MB
+const maxSize = 10; // 10MB
 const maxRow = 10000
 const maxCol = 30
 
 const handleBeforeUpload = (file: File) => {
   showMainWindow()
-  if (file.size > maxSize) {
+  if (file.size > maxSize * 1024 * 1024) {
     ElMessage.error('超过文件大小限制')
     return false; // 阻止文件上传
   }

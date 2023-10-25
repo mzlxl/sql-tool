@@ -47,7 +47,7 @@
 
 <script setup lang="ts">
 import {ElMessage} from 'element-plus'
-import {copyText} from '../../utils'
+import {copyText, escapeQuotMarks} from '../../utils'
 import {format} from 'sql-formatter';
 
 const types = ref([{name: 'mybatis日志解析', type: 'mybatis'},
@@ -247,13 +247,13 @@ const parseParamByType = (p: any | undefined): string => {
     return param.slice(0, param.lastIndexOf("("))
   } else if (stringSuffixes.some(item => param.endsWith(item))) {
     param = param.slice(0, param.lastIndexOf("("))
-    return "'" + param.replace(/"/g, '\\"').replace(/'/g, "\\'") + "'"
+    return `'${escapeQuotMarks(param)}'`
   } else {
     let obj = parseObj(param)
     if (obj && typeof obj === 'number') {
       return obj.toString()
     }
-    return "'" + param.replace(/"/g, '\\"').replace(/'/g, "\\'") + "'"
+    return `'${escapeQuotMarks(param)}'`
   }
 }
 

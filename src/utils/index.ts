@@ -77,24 +77,31 @@ const parseValues = (obj: any): string => {
   return arr.map(item => String(item)).join(",")
 }
 
-const transferObj = (obj: string): string | null => {
-  if (obj === 'null' || obj === 'NULL') {
+const transferObj = (obj: any): string | null => {
+  if (!obj) {
     return null
   }
-  if (!obj) {
-    return "''"
+  if (obj.toString() === "''" || obj.toString() === "'") {
+    return `''`
   }
-  if(typeof obj === 'number' || typeof obj === 'boolean'){
-    return obj
+  if (typeof obj === 'number' || typeof obj === 'boolean') {
+    return obj.toString()
   }
   if (Array.isArray(obj) || typeof obj === 'object') {
-    return "'" + JSON.stringify(obj).replace(/"/g, '\\"').replace(/'/g, "\\'") + "'"
+    return `'${escapeQuotMarks(JSON.stringify(obj))}'`
   }
-  return "'" + obj.toString().replace(/"/g, '\\"').replace(/'/g, "\\'") + "'"
+  return `'${escapeQuotMarks(obj.toString())}'`
 }
 
 export const isNumber = (value: any) => {
   // 使用正则表达式判断是否为数字
   const regex = /^-?\d+\.?\d*$/;
   return regex.test(value);
+}
+
+export const escapeQuotMarks = (value: string): string => {
+  if (!value) {
+    return ''
+  }
+  return value.trim().replace(/"/g, '\\"').replace(/'/g, "\\'")
 }

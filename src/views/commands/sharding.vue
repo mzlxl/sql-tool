@@ -174,7 +174,7 @@
 
 <script setup lang="ts">
 import {ElMessage} from 'element-plus'
-import {copyText} from '../../utils'
+import {copyText, escapeQuotMarks} from '../../utils'
 import {queryDb} from '../../utils'
 import {saveDb} from '../../utils'
 import cloneDeep from 'lodash/cloneDeep';
@@ -238,8 +238,7 @@ const generateResult = () => {
   if (shardingObj.value.strategy == 'hashcode') {
     shardingValue = hashCode(shardingObj.value.value);
   }
-  let value = isNumber(shardingObj.value.value.trim()) ? shardingObj.value.value.trim() :
-      "'" + shardingObj.value.value.trim().replace(/"/g, '\\"').replace(/'/g, "\\'") + "'"
+  let value = shardingObj.value.strategy === 'default' ? shardingObj.value.value.trim() :`'${escapeQuotMarks(shardingObj.value.value)}'`
   let tableIndex: number = shardingValue % (shardingObj.value.tableNum * shardingObj.value.dbNum);
   let dbIndex: number = Math.floor(tableIndex / shardingObj.value.tableNum);
   shardingObj.value.result = 'SELECT * FROM ' + (shardingObj.value.dbName.trim() ? symbol.value : '') +
