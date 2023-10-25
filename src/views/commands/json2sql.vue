@@ -9,7 +9,8 @@
     </el-col>
     <el-col :span="3">
       <el-row>
-        <el-button @click="jsonToSql" style="width: 70px;margin:180px auto 10px auto">SQL&nbsp;&nbsp;&gt;&gt;</el-button>
+        <el-button @click="jsonToSql" style="width: 70px;margin:180px auto 10px auto">SQL&nbsp;&nbsp;&gt;&gt;
+        </el-button>
         <el-button @click="sqlToJson" style="width: 70px;margin: 10px auto">&lt;&lt;JSON</el-button>
         <el-button @click="example" style="width: 70px;margin: 10px auto 10px auto">示 例</el-button>
         <el-button @click="clear" style="width: 70px;margin: 10px auto">清 空</el-button>
@@ -115,7 +116,7 @@ const clear = () => {
 // json转sql
 const jsonToSql = () => {
   try {
-    let sql = json2sql(getData())
+    let sql = json2sql(getData(), 'INSERT')
     sqlInput.value = sql ? sql : ''
   } catch (error) {
     sqlInput.value = ''
@@ -158,20 +159,25 @@ const sqlToJson = () => {
 }
 
 const parseColumnValue = (v: string): any => {
-  let data = JSON.parse(v)
-  if (isNumber(v)) {
-    return Number(v)
-  } else if (Array.isArray(data) || typeof data === 'boolean' || typeof data === 'object') {
-    return data
-  } else {
-    try {
-      data = JSON.parse(data)
-    } catch (e) {
+  v = v.trim()
+  try {
+    let data = JSON.parse(v.startsWith("'") && v.endsWith("'") ? `"${v.slice(1, -1)}"` : v)
+    if (isNumber(v)) {
+      return Number(v)
+    } else if (Array.isArray(data) || typeof data === 'boolean' || typeof data === 'object') {
       return data
+    } else {
+      try {
+        data = JSON.parse(data)
+      } catch (e) {
+        return data
+      }
+      if (Array.isArray(data) || typeof data === 'object') {
+        return data
+      }
+      return v
     }
-    if (Array.isArray(data) || typeof data === 'object') {
-      return data
-    }
+  } catch (e) {
     return v
   }
 }

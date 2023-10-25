@@ -37,7 +37,7 @@ export const queryDb = (key: string): string | null => {
 
 
 // json转sql
-export const json2sql = (jsonData: any): string | undefined => {
+export const json2sql = (jsonData: any, type: string): string | undefined => {
   if (Object.keys(jsonData).length === 0) {
     ElMessage.info('请输入待转换的属性字段')
     return
@@ -63,9 +63,17 @@ export const json2sql = (jsonData: any): string | undefined => {
     ElMessage.info('请输入[data]属性')
     return
   }
+
   const columns = Object.keys(data[0]).join(', ');
   const values = data.map((obj: any) => `(${parseValues(obj)})`).join(', ');
-  let sql = `INSERT INTO ${tableName} (${columns})` + ` VALUES ${values};`
+  let sql = ''
+  if(type === 'INSERT'){
+    sql =  `INSERT INTO ${tableName} (${columns})` + ` VALUES ${values};`
+  }else if(type === 'UPDATE'){
+    let updtesql = `UPDATE ${tableName} SET (${columns})` + ` VALUES ${values};`
+  }else if(type === 'DELETE'){
+    let updtesql = `INSERT INTO ${tableName} (${columns})` + ` VALUES ${values};`
+  }
   return format(sql, {language: 'mysql'});
 }
 

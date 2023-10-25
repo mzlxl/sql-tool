@@ -11,13 +11,13 @@
       <upload-filled/>
     </el-icon>
     <div class="el-upload__text">
-      请拖入文件 或 <em>点击选择文件</em>
+      请拖入文件 或 <em>点击选择文件</em>  后缀必须是xlsx,xls
     </div>
     <template #tip>
       <div class="el-upload__tip">
-        请选择后缀名为xlsx,xls的文件，文件大小不超过{{maxSize}}M，且只会读取第一个sheet前{{ maxRow }}行和前{{
+        文件大小不超过{{maxSize}}M，且只会读取第一个sheet前{{ maxRow }}行和前{{
           maxCol
-        }}列数据，不然可能导致窗口卡死。注意：表格没有值会转换为空字符串'' ，表格为字符串'null'会转换成sql中的null
+        }}列数据，大文件读取可能导致窗口卡死。注意：单元格空值会输出空(null)，如果想输出空字符串，可在单元格填写''
       </div>
     </template>
   </el-upload>
@@ -130,7 +130,7 @@ function parseJsonByFile(file: File) {
     let sql = json2sql({
       table: tableName.value.trim() ? tableName.value.trim() : 'xxx',
       data: jsonDataWithHeaders
-    })
+    }, type.value)
     result.value = sql ? sql : ''
   };
   reader.readAsArrayBuffer(file);
