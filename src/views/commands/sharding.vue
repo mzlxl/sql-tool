@@ -212,7 +212,7 @@ const shardingStrategies = ref([{code: 'default', name: '将分片值直接运�
   name: '将分片值取散列运算'
 }])
 const shardingNums = ref([4, 8, 16, 32, 64, 128, 256, 512])
-const symbol = ref('`')
+const symbol = ref('')
 const isCollapse = ref('')
 const historyList: Ref<ShardingObject[]> = ref([])
 
@@ -238,12 +238,14 @@ const generateResult = () => {
   if (shardingObj.value.strategy == 'hashcode') {
     shardingValue = hashCode(shardingObj.value.value);
   }
+  let value = isNumber(shardingObj.value.value.trim()) ? shardingObj.value.value.trim() :
+      "'" + shardingObj.value.value.trim().replace(/"/g, '\\"').replace(/'/g, "\\'") + "'"
   let tableIndex: number = shardingValue % (shardingObj.value.tableNum * shardingObj.value.dbNum);
   let dbIndex: number = Math.floor(tableIndex / shardingObj.value.tableNum);
   shardingObj.value.result = 'SELECT * FROM ' + (shardingObj.value.dbName.trim() ? symbol.value : '') +
       shardingObj.value.dbName.trim() + (shardingObj.value.dbName.trim() ? '_' + dbIndex + symbol.value + '.' : '') +
       symbol.value + shardingObj.value.tableName.trim() + '_' + tableIndex + symbol.value + ' WHERE ' + symbol.value +
-      shardingObj.value.key.trim() + symbol.value + ' = ' + shardingObj.value.value.trim() + ';';
+      shardingObj.value.key.trim() + symbol.value + ' = ' + value + ';';
   ElMessage.success('生成成功')
   assemblehistory()
 }

@@ -17,7 +17,7 @@
       <div class="el-upload__tip">
         请选择后缀名为xlsx,xls的EXCEL文件，文件大小不超过10M，且只会读取第一个sheet前{{ maxRow }}行和前{{
           maxCol
-        }}列数据，不然可能导致窗口卡死
+        }}列数据，不然可能导致窗口卡死。注意：表格没有值会转换为空字符串'' ，表格为字符串'null'会转换成sql中的null
       </div>
     </template>
   </el-upload>

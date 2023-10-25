@@ -63,7 +63,7 @@ export const json2sql = (jsonData: any): string | undefined => {
     ElMessage.info('请输入[data]属性')
     return
   }
-  const columns = '`' + Object.keys(data[0]).join('`, `') + '`';
+  const columns = Object.keys(data[0]).join(', ');
   const values = data.map((obj: any) => `(${parseValues(obj)})`).join(', ');
   let sql = `INSERT INTO ${tableName} (${columns})` + ` VALUES ${values};`
   return format(sql, {language: 'mysql'});

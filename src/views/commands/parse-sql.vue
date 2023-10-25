@@ -247,13 +247,13 @@ const parseParamByType = (p: any | undefined): string => {
     return param.slice(0, param.lastIndexOf("("))
   } else if (stringSuffixes.some(item => param.endsWith(item))) {
     param = param.slice(0, param.lastIndexOf("("))
-    return '"' + param.replace(/"/g, '\\"') + '"'
+    return "'" + param.replace(/"/g, '\\"').replace(/'/g, "\\'") + "'"
   } else {
     let obj = parseObj(param)
     if (obj && typeof obj === 'number') {
       return obj.toString()
     }
-    return '"' + param.replace(/"/g, '\\"') + '"'
+    return "'" + param.replace(/"/g, '\\"').replace(/'/g, "\\'") + "'"
   }
 }
 
