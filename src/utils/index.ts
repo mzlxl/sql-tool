@@ -65,16 +65,27 @@ export const json2sql = (jsonData: any, type: string): string | undefined => {
   }
 
   const columns = Object.keys(data[0]).join(', ');
-  const values = data.map((obj: any) => `(${parseValues(obj)})`).join(', ');
   let sql = ''
-  if(type === 'INSERT'){
-    sql =  `INSERT INTO ${tableName} (${columns})` + ` VALUES ${values};`
-  }else if(type === 'UPDATE'){
-    let updtesql = `UPDATE ${tableName} SET (${columns})` + ` VALUES ${values};`
-  }else if(type === 'DELETE'){
-    let updtesql = `INSERT INTO ${tableName} (${columns})` + ` VALUES ${values};`
+  if (type === 'INSERT') {
+    const values = data.map((obj: any) => `(${parseValues(obj)})`).join(', ');
+    sql = `INSERT INTO ${tableName} (${columns})` + ` VALUES ${values};`
+  } else if (type === 'UPDATE') {
+    const setValues = data.map((obj: any) => `(${parseKvValues(obj)})`).join(', ');
+    const whereValues = data.map((obj: any) => `(${parseKvValues(obj)})`).join(' AND ');
+    sql = `UPDATE ${tableName}
+           SET (${setValues})` + ` WHERE ${whereValues};`
+  } else if (type === 'DELETE') {
+    const whereValues = data.map((obj: any) => `(${parseKvValues(obj)})`).join(' AND ');
+    sql = `DELETE
+           FROM ${tableName}
+           WHERE ${whereValues};`
   }
   return format(sql, {language: 'mysql'});
+}
+
+const parseKvValues = (obj: any): string => {
+
+  return ''
 }
 
 const parseValues = (obj: any): string => {
