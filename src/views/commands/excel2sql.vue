@@ -15,7 +15,9 @@
     </div>
     <template #tip>
       <div class="el-upload__tip">
-        请选择后缀名为xlsx,xls的EXCEL文件，文件大小不超过10M，且只会读取第一个sheet前{{range['e']['r'] + 1}}行和前{{range['e']['c'] + 1}}列数据，不然可能导致窗口卡死
+        请选择后缀名为xlsx,xls的EXCEL文件，文件大小不超过10M，且只会读取第一个sheet前{{ maxRow }}行和前{{
+          maxCol
+        }}列数据，不然可能导致窗口卡死
       </div>
     </template>
   </el-upload>
@@ -66,7 +68,8 @@ const tableName = ref('')
 const tips = ref('INSERT:表头为字段名，内容行则为插入数据部分')
 const result = ref('')
 const maxSize = 10 * 1024 * 1024; // 10MB
-const range = { s: { r: 0, c: 0 }, e: { r: 9999, c: 30 } }; // { 起始行索引, 起始列索引, 结束行索引, 结束列索引 }
+const maxRow = 10000
+const maxCol = 30
 
 const handleBeforeUpload = (file: File) => {
   showMainWindow()
@@ -90,8 +93,26 @@ function parseJsonByFile(file: File) {
     const data = new Uint8Array(e.target?.result as ArrayBuffer);
     const workbook = XLSX.read(data, {type: 'array'});
     const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: range });
+    const sheetRange = worksheet['!ref']; // 区域范围字符串，例如 "A1:C20"
+    // 解析区域范围字符串，获取起始行、起始列、结束行和结束列的索引
+    const [startCell, endCell] = sheetRange.split(':');
+    const startCol = XLSX.utils.decode_col(startCell.replace(/\d+/g, ''));
+    const startRow = parseInt(startCell.replace(/\D+/g, '')) - 1;
+    const endCol = XLSX.utils.decode_col(endCell.replace(/\d+/g, ''));
+    const endRow = parseInt(endCell.replace(/\D+/g, '')) - 1;
+    // 计算行数和列数
+    const rowCount = endRow - startRow + 1;
+    const colCount = endCol - startCol + 1;
 
+    const range = {
+      s: {r: 0, c: 0},
+      e: {r: (maxRow > rowCount ? rowCount : maxRow) - 1, c: (maxCol > colCount ? colCount : maxCol) - 1}
+    }; // { 起始行索引, 起始列索引, 结束行索引, 结束列索引 }
+    if (rowCount > maxRow || colCount > maxCol) {
+      ElMessage.info('超出行列读取限制，已为你自动截取最大行列读取数，请知晓')
+    }
+
+    const jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1, range: range});
     const header: any = jsonData[0];
     const jsonDataWithoutHeader = jsonData.slice(1);
 
