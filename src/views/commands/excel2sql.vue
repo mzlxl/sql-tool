@@ -132,6 +132,7 @@ function parseJsonByFile(file: File) {
       data: jsonDataWithHeaders
     }, type.value)
     result.value = sql ? sql : ''
+    copySql()
   };
   reader.readAsArrayBuffer(file);
 }

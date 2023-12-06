@@ -247,6 +247,7 @@ const generateResult = () => {
       shardingObj.value.key.trim() + symbol.value + ' = ' + value + ';';
   ElMessage.success('生成成功')
   assemblehistory()
+  copyResult()
 }
 
 const assemblehistory = () => {
@@ -341,6 +342,7 @@ const formatSql = () => {
     shardingObj.value.result = ''
     return ElMessage.error('请输入正确的SQL')
   }
+  copyResult()
 }
 
 const strategyChange = () => {

@@ -98,14 +98,14 @@ const copyJson = () => {
     return ElMessage.info('请先生成JSON')
   }
   copyText(JSON.stringify(json))
-  ElMessage.success('复制成功')
+  ElMessage.success('JSON复制成功')
 }
 const copySql = () => {
   if (!sqlInput.value || sqlInput.value.trim() == '') {
     return ElMessage.info('请先生成SQL')
   }
   copyText(sqlInput.value)
-  ElMessage.success('复制成功')
+  ElMessage.success('SQL复制成功')
 }
 
 const clear = () => {
@@ -122,6 +122,7 @@ const jsonToSql = () => {
     sqlInput.value = ''
     return ElMessage.info('请输入正确JSON数据')
   }
+  copySql()
 }
 
 // sql转json
@@ -156,6 +157,8 @@ const sqlToJson = () => {
     table: tableName,
     data: values
   })
+
+  copyJson()
 }
 
 const parseColumnValue = (v: string): any => {

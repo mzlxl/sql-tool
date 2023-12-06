@@ -78,6 +78,7 @@ const generateResult = () => {
   } else {
     generateNormalResult()
   }
+  copyResult()
 }
 
 const generateNormalResult = () => {
@@ -266,6 +267,7 @@ const formatSql = () => {
     sqlResult.value = ''
     return ElMessage.error('请输入正确的SQL')
   }
+  copyResult()
 }
 
 const copyResult = () => {

@@ -78,6 +78,8 @@ const generateResult = () => {
     }
     return ElMessage.error('请输入正确数据库类型的SQL')
   }
+
+  copyResult()
 }
 
 const copyResult = () => {
