@@ -22,6 +22,8 @@
                 :autosize="{ minRows: 4, maxRows: 6 }"></el-input>
     </el-form-item>
     <el-checkbox v-model="distinct">是否去重</el-checkbox>
+    <el-checkbox v-model="trimLeft">去除开头空格</el-checkbox>
+    <el-checkbox v-model="trimEnd">去除末尾空格</el-checkbox>
   </el-form>
   <div class="m-y-20px flex items-center justify-end">
     <el-button @click="clear">清 空</el-button>
@@ -46,6 +48,8 @@ const type = ref('num')
 const input = ref('')
 const result = ref('')
 const distinct = ref(true)
+const trimLeft = ref(true)
+const trimEnd = ref(true)
 
 
 const col2row = () => {
@@ -55,6 +59,10 @@ const col2row = () => {
   }
   let tmpResult = parseChar() + input.value.trim().replace(/\n/g, generateSeparator) + parseChar();
 
+  if (trimLeft.value || trimEnd.value) {
+    tmpResult = tmpResult.split(parseSeparator()).map(item => trimLeft.value && trimEnd.value ?
+        item.trim() : trimLeft.value ? item.trimLeft() : item.trimEnd()).join(parseSeparator());
+  }
   if (distinct.value) {
     result.value = [...new Set(tmpResult.split(parseSeparator()))].join(parseSeparator())
   } else {
