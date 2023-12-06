@@ -1,9 +1,9 @@
 <template>
   <div class="layout-container" :style="{ width: containerWidth, height: containerHeight }">
     <el-menu :default-active="$route.name" router>
+      <el-menu-item index="/commands/parse-sql">SQL日志解析</el-menu-item>
       <el-menu-item index="/commands/sharding">分库分表工具</el-menu-item>
       <el-menu-item index="/commands/col2row">列转行工具</el-menu-item>
-      <el-menu-item index="/commands/parse-sql">SQL日志解析</el-menu-item>
       <el-menu-item index="/commands/json2sql">JSON转SQL</el-menu-item>
       <el-menu-item index="/commands/excel2sql">EXCEL转SQL</el-menu-item>
       <el-menu-item index="/commands/format-sql">漂亮SQL工具</el-menu-item>
@@ -31,7 +31,7 @@ if (isUtoolsEnv()) {
 
 if (onMounted) {
   onMounted(() => {
-    router.replace('/commands/sharding')
+    router.replace('/commands/parse-sql')
   })
 }
 </script>

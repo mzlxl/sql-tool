@@ -54,21 +54,21 @@ if (isUtoolsEnv()) {
   })
 
   utools.onMainPush?.(
-      // callback
+      // callback 当主窗口推送消息时触发回调函数
       ({code}) => {
         if (code === 'sharding') {
 
         }
         return []
       },
-      // selectCallback
+      // selectCallback 选择回调函数，用于处理选择操作
       ({code, option}) => {
         if (code === 'sharding') {
         }
       },
   )
 } else {
-  router.push({name: '/commands/sharding'})
+  router.push({name: '/commands/parse-sql'})
 }
 
 
