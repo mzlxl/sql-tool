@@ -38,7 +38,7 @@
   </el-form>
   <div class="m-y-20px flex items-center justify-end">
     <el-button @click="clear">清 空</el-button>
-    <el-button type="primary" @click="generateResult">生 成</el-button>
+    <el-button type="primary" @click="generateResultAndCopy">生 成</el-button>
     <el-button type="primary" @click="formatSql">美化SQL</el-button>
     <el-button @click="copyResult">复制结果</el-button>
   </div>
@@ -66,6 +66,11 @@ const paramExample = ref('示例：[1,b,c(String)]')
 const mybatisExample = ref('示例：DEBUG [main] org.mybatis.example.BlogMapper.selectBlogWithPosts - ==>  Preparing: SELECT * FROM tableName WHERE a=? AND b=? AND c=?\n' +
     'DEBUG [main] org.mybatis.example.BlogMapper.selectBlogWithPosts - ==> Parameters: 1,b,c(String)')
 
+const generateResultAndCopy = () => {
+  generateResult()
+  copyResult()
+}
+
 const generateResult = () => {
   if (!sqlSample.value || sqlSample.value.trim() == '') {
     ElMessage.info(`请输入要解析的SQL日志样本`)
@@ -78,7 +83,6 @@ const generateResult = () => {
   } else {
     generateNormalResult()
   }
-  copyResult()
 }
 
 const generateNormalResult = () => {
