@@ -19,7 +19,7 @@
 
 ```shell
 $ npm i
-$ npm build
+$ npm run build
 $ npm run dev # 运行测试环境
 ```
 

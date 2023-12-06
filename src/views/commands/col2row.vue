@@ -29,7 +29,7 @@
     <el-button @click="clear">清 空</el-button>
     <el-button type="primary" @click="col2row">列转行</el-button>
     <el-button type="primary" @click="row2col">行转列</el-button>
-    <el-button @click="copyResult">复制结果</el-button>
+    <el-button @click="copyResultExample">复制列转行示例SQL</el-button>
   </div>
 
 </template>
@@ -50,6 +50,7 @@ const result = ref('')
 const distinct = ref(true)
 const trimLeft = ref(true)
 const trimEnd = ref(true)
+const operateType = ref('')
 
 
 const col2row = () => {
@@ -68,6 +69,8 @@ const col2row = () => {
   } else {
     result.value = tmpResult
   }
+  operateType.value = 'col2row'
+  copyResult()
 }
 
 const row2col = () => {
@@ -81,11 +84,18 @@ const row2col = () => {
   str = str.endsWith(char) && char != '' ? str.slice(0, -1) : str
   str = str.startsWith(char) && char != '' ? str.slice(1, str.length) : str
 
+  if (trimLeft.value || trimEnd.value) {
+    str = str.split('\n').map(item => trimLeft.value && trimEnd.value ?
+        item.trim() : trimLeft.value ? item.trimLeft() : item.trimEnd()).join('\n');
+  }
+
   if (distinct.value) {
     result.value = [...new Set(str.split('\n'))].join('\n')
   } else {
     result.value = str
   }
+  operateType.value = 'row2col'
+  copyResult()
 }
 
 const generateSeparator = () => parseChar() + parseSeparator() + parseChar()
@@ -113,6 +123,17 @@ const copyResult = () => {
     return ElMessage.info('请先生成转换结果')
   }
   copyText(result.value)
+  ElMessage.success('复制成功')
+}
+
+const copyResultExample = () => {
+  if (!result.value || result.value.trim() == '') {
+    return ElMessage.info('请先生成转换结果')
+  }
+  if(operateType.value != 'col2row'){
+    return ElMessage.info('请先生成列转行结果')
+  }
+  copyText('SELECT * FROM xxx WHERE xxx IN (' + result.value + ');')
   ElMessage.success('复制成功')
 }
 
