@@ -234,11 +234,13 @@ const generateResult = () => {
     return
   }
   isCollapse.value = ''
-  let shardingValue: bigint = BigInt(shardingObj.value.value);
+  let shardingValue: bigint;
   if (shardingObj.value.strategy == 'hashcode') {
     shardingValue = BigInt(hashCode(shardingObj.value.value));
+  } else {
+    shardingValue = BigInt(shardingObj.value.value);
   }
-  let value = shardingObj.value.strategy === 'default' ? shardingObj.value.value.trim() :`'${escapeQuotMarks(shardingObj.value.value)}'`
+  let value = shardingObj.value.strategy === 'default' ? shardingObj.value.value.trim() : `'${escapeQuotMarks(shardingObj.value.value)}'`
   let tableIndex: number = Number(shardingValue % BigInt(shardingObj.value.tableNum * shardingObj.value.dbNum));
   let dbIndex: number = Math.floor(tableIndex / shardingObj.value.tableNum);
   shardingObj.value.result = 'SELECT * FROM ' + (shardingObj.value.dbName.trim() ? symbol.value : '') +
