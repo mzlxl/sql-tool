@@ -195,7 +195,11 @@ const parseObj = (str: string): any | null => {
     }
   } catch (e) {
     try {
-      return JSON.parse(str.replace(/\\"/g, '"'))
+      let tmp = str.replace(/\\"/g, '"')
+      if(isNumber(tmp)){
+        return BigInt(str)
+      }
+      return JSON.parse(tmp)
     } catch (e) {
       return null
     }
