@@ -47,7 +47,7 @@
 
 <script setup lang="ts">
 import {ElMessage} from 'element-plus'
-import {copyText, escapeQuotMarks} from '../../utils'
+import {copyText, escapeQuotMarks, isNumber} from '../../utils'
 import {format} from 'sql-formatter';
 
 const types = ref([{name: 'mybatis日志解析', type: 'mybatis'},
@@ -187,7 +187,12 @@ const tryParseObj = (arr: any[], params: string, seqStart: string, seqEnd: strin
 
 const parseObj = (str: string): any | null => {
   try {
-    return JSON.parse(str)
+    if (isNumber(str)) {
+      // json parse对比较大的数字有精度丢失的问题
+      return BigInt(str)
+    } else {
+      return JSON.parse(str)
+    }
   } catch (e) {
     try {
       return JSON.parse(str.replace(/\\"/g, '"'))
