@@ -22,6 +22,7 @@
                 :autosize="{ minRows: 4, maxRows: 6 }"></el-input>
     </el-form-item>
     <el-checkbox v-model="distinct">是否去重</el-checkbox>
+    <el-checkbox v-model="removeEmptyStr">去空字符串</el-checkbox>
     <el-checkbox v-model="trimLeft">去除开头空格</el-checkbox>
     <el-checkbox v-model="trimEnd">去除末尾空格</el-checkbox>
   </el-form>
@@ -48,6 +49,7 @@ const type = ref('num')
 const input = ref('')
 const result = ref('')
 const distinct = ref(true)
+const removeEmptyStr = ref(true)
 const trimLeft = ref(true)
 const trimEnd = ref(true)
 const operateType = ref('')
@@ -64,13 +66,14 @@ const col2row = () => {
     tmpResult = tmpResult.split(parseSeparator()).map(item => trimLeft.value && trimEnd.value ?
         item.trim() : trimLeft.value ? item.trimLeft() : item.trimEnd()).join(parseSeparator());
   }
-  if (distinct.value) {
-    result.value = [...new Set(tmpResult.split(parseSeparator()))].join(parseSeparator())
-  } else {
-    result.value = tmpResult
-  }
+  tmpResult = distinct.value ? [...new Set(tmpResult.split(parseSeparator()))].join(parseSeparator()) : tmpResult
+  result.value = removeEmptyStr.value ? removeEmptyString(tmpResult, parseSeparator()).join(parseSeparator()) : tmpResult
   operateType.value = 'col2row'
   copyResult()
+}
+
+const removeEmptyString = (str: string, separator: string): string[] => {
+  return str.split(separator).filter(s => !removeEmptyStr.value || s.trim() !== "")
 }
 
 const row2col = () => {
@@ -89,11 +92,8 @@ const row2col = () => {
         item.trim() : trimLeft.value ? item.trimLeft() : item.trimEnd()).join('\n');
   }
 
-  if (distinct.value) {
-    result.value = [...new Set(str.split('\n'))].join('\n')
-  } else {
-    result.value = str
-  }
+  let tmpResult = distinct.value ? [...new Set(str.split('\n'))].join('\n') : str
+  result.value = removeEmptyStr.value ? removeEmptyString(tmpResult, '\n').join('\n') : tmpResult
   operateType.value = 'row2col'
   copyResult()
 }
@@ -130,7 +130,7 @@ const copyResultExample = () => {
   if (!result.value || result.value.trim() == '') {
     return ElMessage.info('请先生成转换结果')
   }
-  if(operateType.value != 'col2row'){
+  if (operateType.value != 'col2row') {
     return ElMessage.info('请先生成列转行结果')
   }
   copyText('SELECT * FROM xxx WHERE xxx IN (' + result.value + ');')
