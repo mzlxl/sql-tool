@@ -2,7 +2,7 @@
   <h2 class="m-y-20px">SQL日志解析工具</h2>
   <el-form label-position="left" label-width="120px">
     <el-form-item label="解析SQl日志类型" class="w-500px">
-      <el-select placeholder="请选择解析SQl日志类型" filterable v-model="type" class="w-250px">
+      <el-select placeholder="请选择解析SQl日志类型" filterable v-model="type" class="w-250px" @change="typeChange">
         <el-option v-for="item in types" :key="item.type" :value="item.type"
                    :label="item.name"></el-option>
       </el-select>
@@ -60,16 +60,23 @@ let numSuffixes = ["(Boolean)", "(Integer)", "(Double)", "(Long)", "(Float)", "(
 const sqlSample = ref('')
 const paramSample = ref('')
 const sqlResult = ref('')
-const shardingSphereExample = ref('示例：Actual SQL: dbName ::: SELECT *  FROM tableName WHERE  a=? AND b=? AND c=? ::: [1,b,c(String)]')
-const normalExample = ref('示例：SELECT *  FROM tableName WHERE a=? AND b=? AND c=?')
-const paramExample = ref('示例：[1,b,c(String)]')
+const shardingSphereExample = ref('示例：Actual SQL: dbName ::: SELECT *  FROM tableName WHERE  a=? AND b=? AND c=? AND d=? ::: [1,b,c(String),null]')
+const normalExample = ref('示例：SELECT *  FROM tableName WHERE a=? AND b=? AND c=? AND d=?')
+const paramExample = ref('示例：[1,b,c(String),null]')
 const mybatisExample = ref('示例：DEBUG [main] org.mybatis.example.BlogMapper.selectBlogWithPosts - ==>  Preparing: SELECT * FROM tableName WHERE a=? AND b=? AND c=? AND d=?\n' +
     'DEBUG [main] org.mybatis.example.BlogMapper.selectBlogWithPosts - ==> Parameters: 1,b,c(String),null')
 
 const generateResultAndCopy = () => {
   generateResult()
-  copyResult()
+  if(sqlResult.value){
+    copyResult()
+  }
 }
+
+const typeChange = () => {
+  sqlResult.value = ''
+}
+
 
 const generateResult = () => {
   if (!sqlSample.value || sqlSample.value.trim() == '') {
