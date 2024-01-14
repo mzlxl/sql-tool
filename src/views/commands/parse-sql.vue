@@ -63,8 +63,8 @@ const sqlResult = ref('')
 const shardingSphereExample = ref('示例：Actual SQL: dbName ::: SELECT *  FROM tableName WHERE  a=? AND b=? AND c=? ::: [1,b,c(String)]')
 const normalExample = ref('示例：SELECT *  FROM tableName WHERE a=? AND b=? AND c=?')
 const paramExample = ref('示例：[1,b,c(String)]')
-const mybatisExample = ref('示例：DEBUG [main] org.mybatis.example.BlogMapper.selectBlogWithPosts - ==>  Preparing: SELECT * FROM tableName WHERE a=? AND b=? AND c=?\n' +
-    'DEBUG [main] org.mybatis.example.BlogMapper.selectBlogWithPosts - ==> Parameters: 1,b,c(String)')
+const mybatisExample = ref('示例：DEBUG [main] org.mybatis.example.BlogMapper.selectBlogWithPosts - ==>  Preparing: SELECT * FROM tableName WHERE a=? AND b=? AND c=? AND d=?\n' +
+    'DEBUG [main] org.mybatis.example.BlogMapper.selectBlogWithPosts - ==> Parameters: 1,b,c(String),null')
 
 const generateResultAndCopy = () => {
   generateResult()
@@ -196,7 +196,7 @@ const parseObj = (str: string): any | null => {
   } catch (e) {
     try {
       let tmp = str.replace(/\\"/g, '"')
-      if(isNumber(tmp)){
+      if (isNumber(tmp)) {
         return BigInt(str)
       }
       return JSON.parse(tmp)
@@ -263,6 +263,9 @@ const parseParamByType = (p: any | undefined): string => {
     param = param.slice(0, param.lastIndexOf("("))
     return `'${escapeQuotMarks(param)}'`
   } else {
+    if (p.toLowerCase() == 'null') {
+      return p
+    }
     let obj = parseObj(param)
     if (obj && typeof obj === 'number') {
       return obj.toString()
