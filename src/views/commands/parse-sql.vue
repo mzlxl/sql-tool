@@ -269,7 +269,7 @@ const parseParamByType = (p: any | undefined): string => {
     param = param.slice(0, param.lastIndexOf("("))
     return `'${escapeQuotMarks(param)}'`
   } else {
-    if (p.toLowerCase() == 'null') {
+    if (typeof p === 'string' && p.toLowerCase() == 'null') {
       return p
     }
     let obj = parseObj(param)
