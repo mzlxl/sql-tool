@@ -151,7 +151,6 @@ const replaceDbName = (sql: string, dbBeforeStr: string, dbName: string): string
   if (!sql) {
     return ''
   }
-  let replaceSql = sql.replace(eval('/' + dbBeforeStr.toLowerCase() + '/g'), dbBeforeStr.toLowerCase() + dbName + (dbName ? '.' : ''))
   return sql.replace(eval('/' + dbBeforeStr.toUpperCase() + '/g'), dbBeforeStr.toUpperCase() + dbName + (dbName ? '.' : ''))
 }
 
@@ -240,7 +239,7 @@ const parseSql = (sql: string, params: any[]): string => {
     return '';
   }
   // 将参数替换到问号中
-  return sql.replace(/\?/g, (substring: string) => parseParamByType(params.shift()) || substring);
+  return sql.replace(/\?/g, () => parseParamByType(params.shift()) || "''");
 }
 
 // 检查输入值的问号数量和参数数量是否一致
