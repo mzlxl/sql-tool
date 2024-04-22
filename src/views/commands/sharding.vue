@@ -72,6 +72,11 @@
                 placeholder="通过分库分表路由算法快捷生成SQL，生成后可复制使用"
                 :autosize="{ minRows: 4, maxRows: 20 }"></el-input>
     </el-form-item>
+    <el-form-item label="常用库表">
+      <el-button v-for="item in dbTableHistory" @click.stop.prevent="useDbTableNum(item)">
+        {{ item.db }}库{{ item.table }}表
+      </el-button>
+    </el-form-item>
   </el-form>
   <div class="m-y-20px flex items-center justify-end">
     <el-popconfirm width="220" title="确认清空历史，清空后将无法恢复和应用历史记录?" @confirm="clearHistory">
@@ -215,6 +220,7 @@ const shardingNums = ref([4, 8, 16, 32, 64, 128, 256, 512])
 const symbol = ref('')
 const isCollapse = ref('')
 const historyList: Ref<ShardingObject[]> = ref([])
+const dbTableHistory: Ref<{ db: number, table: number }[]> = ref([])
 
 if (onMounted) {
   onMounted(() => {
@@ -250,6 +256,25 @@ const generateResult = () => {
   ElMessage.success('生成成功')
   assemblehistory()
   copyResult()
+
+  groupDbAndTableNum()
+}
+const groupDbAndTableNum = () => {
+  const count: Record<string, number> = {};
+  historyList.value.forEach((item) => {
+    const key = `${item.dbNum}-${item.tableNum}`;
+    count[key] = (count[key] || 0) + 1;
+  });
+
+  // 创建一个数组来存储所有组合及其计数
+  const sortedElements = Object.entries(count).map(([key, value]) => {
+    const [db, table] = key.split('-').map(Number);
+    return {db, table, count: value};
+  });
+
+  // 对数组进行排序
+  sortedElements.sort((a, b) => b.count - a.count);
+  dbTableHistory.value = sortedElements.slice(0, 6)
 }
 
 const assemblehistory = () => {
@@ -286,6 +311,8 @@ const indexOfHistory = () => {
 const initHistory = () => {
   let cacheData = queryDb('historyList')
   historyList.value = cacheData ? JSON.parse(cacheData) : [];
+
+  groupDbAndTableNum()
 }
 
 const isNumber = (value: any) => {
@@ -330,6 +357,11 @@ const useHistory = (item: ShardingObject) => {
   shardingObj.value = cloneDeep(item) as ShardingObject
   assemblehistory()
   ElMessage.success('应用成功')
+}
+
+const useDbTableNum = (item: { db: number, table: number }) => {
+  shardingObj.value.dbNum = item.db
+  shardingObj.value.tableNum = item.table
 }
 
 const formatSql = () => {
