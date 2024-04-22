@@ -47,7 +47,7 @@
 
 <script setup lang="ts">
 import {ElMessage} from 'element-plus'
-import {copyText, escapeQuotMarks, isNumber} from '../../utils'
+import {copyText, escapeQuotMarks, isNumber, saveDb, queryDb} from '../../utils'
 import {format} from 'sql-formatter';
 
 const types = ref([{name: 'mybatis日志解析', type: 'mybatis'},
@@ -68,13 +68,21 @@ const mybatisExample = ref('示例：DEBUG [main] org.mybatis.example.BlogMapper
 
 const generateResultAndCopy = () => {
   generateResult()
-  if(sqlResult.value){
+  if (sqlResult.value) {
     copyResult()
   }
 }
 
+if (onMounted) {
+  onMounted(() => {
+    type.value = queryDb("parse-sql-type-histo") || '';
+  })
+}
+
 const typeChange = () => {
   sqlResult.value = ''
+
+  saveDb("parse-sql-type-histo", type.value)
 }
 
 
