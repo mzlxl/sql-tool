@@ -72,7 +72,7 @@ export const json2sql = (jsonData: any, type: string): string | undefined => {
       ElMessage.error('缺少插入数据，请修改重试')
       return ''
     }
-    return format(`INSERT INTO ${tableName} (${columns})` + ` VALUES ${values};`, {language: 'mysql'})
+    return format(`INSERT INTO ${tableName} (${columns})` + ` VALUES ${values};`, {language: 'plsql'})
   } else if (type === 'UPDATE') {
     let sqlArr: string[] = []
     for (let obj of data) {

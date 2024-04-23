@@ -130,7 +130,7 @@ const sqlToJson = () => {
   let matches
   try {
     // 换行替换空格，连续空格再处理成单个空格
-    let sql = format(sqlInput.value, {language: 'mysql'}).trim()
+    let sql = format(sqlInput.value, {language: 'plsql'}).trim()
     sql = sql.endsWith(";") ? sql : sql + ';'
     matches = sql.replace(/\n/g, ' ')
     .replace(/ +/g, " ").match(/INSERT INTO (\w+) \((.+)\) VALUES (.+);/);

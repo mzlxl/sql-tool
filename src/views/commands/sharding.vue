@@ -371,7 +371,7 @@ const formatSql = () => {
   }
 
   try {
-    shardingObj.value.result = format(shardingObj.value.result, {language: 'mysql'})
+    shardingObj.value.result = format(shardingObj.value.result, {language: 'plsql'})
   } catch (e) {
     shardingObj.value.result = ''
     return ElMessage.error('请输入正确的SQL')

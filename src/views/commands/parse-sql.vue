@@ -292,7 +292,7 @@ const formatSql = () => {
   generateResult()
 
   try {
-    sqlResult.value = format(sqlResult.value, {language: 'mysql'})
+    sqlResult.value = format(sqlResult.value, {language: 'plsql'})
   } catch (e) {
     sqlResult.value = ''
     return ElMessage.error('请输入正确的SQL')
