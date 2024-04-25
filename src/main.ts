@@ -16,38 +16,35 @@ import {isUtoolsEnv, saveDb} from './utils/index'
 
 if (isUtoolsEnv()) {
   utools.onPluginEnter(({code, type, payload}) => {
-    if (!!payload) {
-      saveDb("enter_cache:" + code, payload)
-    }
     if (code === 'format') {
       // 所有指令的列表，方便选择未添加到utools快捷启动的命令
-      router.push({name: '/commands/format-sql'})
+      router.push({name: '/commands/format-sql', query: { "payload": payload }})
       return
     }
 
     if (code === 'sharding') {
-      router.push({name: '/commands/sharding'})
+      router.push({name: '/commands/sharding', query: { "payload": payload }})
       return
     }
 
     if (code === 'col2row') {
-      router.push({name: '/commands/col2row'})
+      router.push({name: '/commands/col2row', query: { "payload": payload }})
       return
     }
 
     if (code === 'json2sql') {
-      router.push({name: '/commands/json2sql'})
+      router.push({name: '/commands/json2sql', query: { "payload": payload }})
       return
     }
 
     if (code === 'parse-sql') {
       // 所有指令的列表，方便选择未添加到utools快捷启动的命令
-      router.push({name: '/commands/parse-sql'})
+      router.push({name: '/commands/parse-sql', query: { "payload": payload }})
       return
     }
 
     if (code === 'excel2sql') {
-      router.push({name: '/commands/excel2sql'})
+      router.push({name: '/commands/excel2sql', query: { "payload": payload }})
       return
     }
   })

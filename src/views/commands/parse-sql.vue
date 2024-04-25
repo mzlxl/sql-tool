@@ -49,6 +49,7 @@
 import {ElMessage} from 'element-plus'
 import {copyText, escapeQuotMarks, isNumber, saveDb, queryDb} from '../../utils'
 import {format} from 'sql-formatter';
+import {useRoute} from "vue-router";
 
 const types = ref([{name: 'mybatis日志解析', type: 'mybatis'},
   {name: 'ShardingSphere SQL日志解析', type: 'ShardingSphere'}, {name: '通用SQL日志解析', type: 'normal'}])
@@ -75,7 +76,16 @@ const generateResultAndCopy = () => {
 
 if (onMounted) {
   onMounted(() => {
-    type.value = queryDb("parse-sql-type-histo") || '';
+    const route = useRoute();
+    const payload = route.query?.payload
+    if (payload) {
+      let initSql: string = typeof payload === 'string' ? payload.toString() : JSON.stringify(payload)
+      sqlSample.value = initSql
+      type.value = initSql.indexOf(":::") >= 0 ? 'ShardingSphere' : 'mybatis'
+      generateResult()
+    } else {
+      type.value = queryDb("parse-sql-type-histo") || '';
+    }
   })
 }
 

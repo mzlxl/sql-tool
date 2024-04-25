@@ -31,11 +31,11 @@ import JSONEditor from 'jsoneditor'
 import type {JSONEditorOptions} from 'jsoneditor'
 import 'jsoneditor/dist/jsoneditor.min.css'
 import {format} from 'sql-formatter';
+import {useRoute} from 'vue-router';
 
 
 let editor: any
 const sqlInput = ref('')
-const fillEditorText = ref(false)
 
 if (onMounted) {
   onMounted(() => {
@@ -51,8 +51,8 @@ if (onMounted) {
         statusBar: true, // 设置状态栏是否可见
       }
       editor = new JSONEditor(container, options)
-      initCache()
     }
+    initCache()
   })
 
   onUnmounted(() => {
@@ -63,24 +63,23 @@ if (onMounted) {
 }
 
 const initCache = () => {
-  if (fillEditorText.value) {
-    return;
+  const route = useRoute();
+  const payload = route.query?.payload
+  if (payload) {
+    try {
+      setData({
+        table: 'table',
+        data: [JSON.parse(typeof payload === 'string' ? payload.toString() : JSON.stringify(payload))]
+      })
+      jsonToSql()
+      return
+    } catch (e) {
+    }
   }
-  let cache: string | null = queryDb("enter_cache:json2sql")
-  if (!cache) {
-    initJson()
-    return
-  }
-  try {
-    removeDb("enter_cache:json2sql")
-    setData({table: 'table', data: [JSON.parse(cache)]})
-    jsonToSql()
-  } catch (e) {
-  }
+  initJson()
 }
 
 const initJson = () => {
-  fillEditorText.value = true
   setData({table: '', data: []})
 }
 

@@ -11,7 +11,11 @@
     {
       "code": "format",
       "explain": "一个基于utools的美化SQL工具",
-      "cmds": ["format", "美化", "格式化", "sql"]
+      "cmds": ["format", "美化", "格式化", "sql",{
+        "type": "regex",
+        "label": "SQL美化",
+        "match": "/\\b(SELECT|INSERT|UPDATE|DELETE|FROM|WHERE|JOIN|CREATE|ALTER|DROP|TABLE|INDEX)\\b(?!.*:::)/gi"
+      }]
     },
     {
       "code": "sharding",
@@ -21,12 +25,20 @@
     {
       "code": "col2row",
       "explain": "一个基于utools的换转列的辅助工具",
-      "cmds": ["行转列", "列转行", "col", "row"]
+      "cmds": ["行转列", "列转行", "col", "row",{
+        "type": "regex",
+        "label": "行转列",
+        "match": "/,(?!.*\\b(SELECT|INSERT|UPDATE|DELETE|FROM|WHERE|JOIN|CREATE|ALTER|DROP|TABLE|INDEX)\\b).+|.+,(?!.*\\b(SELECT|INSERT|UPDATE|DELETE|FROM|WHERE|JOIN|CREATE|ALTER|DROP|TABLE|INDEX)\\b)/gi"
+      }]
     },
     {
       "code": "parse-sql",
       "explain": "一个基于utools的SQL日志解析工具",
-      "cmds": ["parse", "解析", "日志", "mybatis"]
+      "cmds": ["parse", "解析", "日志", "mybatis",{
+        "type": "regex",
+        "label": "SQL解析",
+        "match": "/\\b(SELECT|INSERT|UPDATE|DELETE|FROM|WHERE|JOIN|CREATE|ALTER|DROP|TABLE|INDEX)\\b.*:::.*/gi"
+      }]
     },
     {
       "code": "json2sql",
