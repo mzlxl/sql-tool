@@ -35,6 +35,13 @@ export const queryDb = (key: string): string | null => {
   }
 }
 
+export const removeDb = (key: string) => {
+  if (isUtoolsEnv()) {
+    utools.dbStorage.removeItem(key)
+  } else {
+    localStorage.removeItem(key);
+  }
+}
 
 // json转sql
 export const json2sql = (jsonData: any, type: string): string | undefined => {
@@ -132,7 +139,7 @@ const parseValues = (obj: any): string => {
 }
 
 const transferObj = (obj: any): string | null => {
-  if (!obj) {
+  if (!obj && obj != 0) {
     return null
   }
   if (obj.toString() === "''" || obj.toString() === "'") {

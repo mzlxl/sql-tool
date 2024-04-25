@@ -26,7 +26,7 @@
 
 <script setup lang="ts">
 import {ElMessage} from 'element-plus'
-import {copyText, json2sql, isNumber} from '../../utils'
+import {copyText, json2sql, isNumber, saveDb, queryDb, removeDb} from '../../utils'
 import JSONEditor from 'jsoneditor'
 import type {JSONEditorOptions} from 'jsoneditor'
 import 'jsoneditor/dist/jsoneditor.min.css'
@@ -35,6 +35,7 @@ import {format} from 'sql-formatter';
 
 let editor: any
 const sqlInput = ref('')
+const fillEditorText = ref(false)
 
 if (onMounted) {
   onMounted(() => {
@@ -50,7 +51,7 @@ if (onMounted) {
         statusBar: true, // 设置状态栏是否可见
       }
       editor = new JSONEditor(container, options)
-      initJson()
+      initCache()
     }
   })
 
@@ -61,7 +62,25 @@ if (onMounted) {
   })
 }
 
+const initCache = () => {
+  if (fillEditorText.value) {
+    return;
+  }
+  let cache: string | null = queryDb("enter_cache:json2sql")
+  if (!cache) {
+    initJson()
+    return
+  }
+  try {
+    removeDb("enter_cache:json2sql")
+    setData({table: 'table', data: [JSON.parse(cache)]})
+    jsonToSql()
+  } catch (e) {
+  }
+}
+
 const initJson = () => {
+  fillEditorText.value = true
   setData({table: '', data: []})
 }
 

@@ -12,14 +12,13 @@ import 'element-plus/theme-chalk/el-overlay.css'
 import 'element-plus/theme-chalk/el-dialog.css'
 
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
-import {isUtoolsEnv} from './utils/index'
+import {isUtoolsEnv, saveDb} from './utils/index'
 
 if (isUtoolsEnv()) {
   utools.onPluginEnter(({code, type, payload}) => {
-    // if (code === 'setting') {
-    //   router.push({ name: '/commands/' })
-    //   return
-    // }
+    if (!!payload) {
+      saveDb("enter_cache:" + code, payload)
+    }
     if (code === 'format') {
       // 所有指令的列表，方便选择未添加到utools快捷启动的命令
       router.push({name: '/commands/format-sql'})
