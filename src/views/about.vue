@@ -8,10 +8,10 @@
   <p>分库分表工具：快捷生成分库分表路由SQL，支持历史记录和常用库表算法。</p>
   <p>列转行工具：列转行&行转列，快速生成SQL查询条件，支持智能匹配功能。</p>
   <p>JSON转SQL：JSON和SQL互转的工具，支持智能匹配功能。</p>
-  <p>EXCEL转SQL：EXCEL转SQL的工具，支持基础的增删改(字段名.where表示条件列)</p>
+  <p>EXCEL转SQL：EXCEL转SQL的工具，支持基础的增删改(字段名.where表示条件列)。</p>
   <p>漂亮SQL工具：SQL格式化工具，支持各种数据库类型，支持智能匹配功能。</p>
   <h2 class="m-y-20px">智能匹配</h2>
-  <p>复制文本然后快捷键或超级面板唤起并进入utools组件中，实现文本自动填充生成。</p>
+  <p>根据选中/复制内容智能匹配，获得"超级中键"或"快捷进入"，实现自动填充文本。</p>
   <p>智能匹配及其他使用技巧：<span class="link ml-2" @click="openUtools">https://www.u.tools/</span></p>
 </template>
 
