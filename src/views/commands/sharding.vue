@@ -210,7 +210,7 @@ const shardingObj: Ref<ShardingObject> = ref({
 
 const strategyDesc = ref('tableIndex = shardingValue%(tableNum*dbNum); dbIndex = tableIndex/tableNum')
 
-const historyLength = 20
+const historyLength = 50
 
 const shardingStrategies = ref([{code: 'default', name: '将分片值直接运算'}, {
   code: 'hashcode',

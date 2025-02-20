@@ -3,7 +3,7 @@
   "development": {
     "main": "http://localhost:5175"
   },
-  "logo": "./logo.png",
+  "logo": "logo.png",
   "pluginSetting": {
     "height": 700
   },
