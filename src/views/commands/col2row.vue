@@ -38,6 +38,7 @@
 <script setup lang="ts">
 import {ElMessage} from 'element-plus'
 import {copyText} from '../../utils'
+import {useRoute} from "vue-router";
 
 const separators = ref([{name: '逗号', type: 'comma', separator: ','},
   {name: '空格', type: 'space', separator: ' '}])
@@ -54,6 +55,16 @@ const trimLeft = ref(true)
 const trimEnd = ref(true)
 const operateType = ref('')
 
+if (onMounted) {
+  onMounted(() => {
+    const route = useRoute();
+    const payload = route.query?.payload
+    if (payload) {
+      input.value = typeof payload === 'string' ? payload.toString() : JSON.stringify(payload)
+      row2col()
+    }
+  })
+}
 
 const col2row = () => {
   if (!input.value || input.value.trim() == '') {

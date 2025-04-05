@@ -34,6 +34,7 @@
 import {ElMessage} from 'element-plus'
 import {copyText, openUrl} from '../../utils'
 import {format} from 'sql-formatter';
+import {useRoute} from 'vue-router';
 
 const types = ref([
   {type: 'sql', name: '自动检测', link: ''},
@@ -63,6 +64,18 @@ const types = ref([
 const type = ref('sql')
 const sql = ref('')
 const sqlResult = ref('')
+
+
+if (onMounted) {
+  onMounted(() => {
+    const route = useRoute();
+    const payload = route.query?.payload
+    if (payload) {
+      sql.value = typeof payload === 'string' ? payload.toString() : JSON.stringify(payload)
+      generateResult()
+    }
+  })
+}
 
 const generateResult = () => {
   if (!sql.value || sql.value.trim() == '') {

@@ -19,6 +19,13 @@
           maxCol
         }}列数据，大文件读取可能导致窗口卡死。注意：单元格空值会输出空(null)，如果想输出空字符串，可在单元格填写''
       </div>
+      <div class="el-upload__tip">
+        单元格是日期格式：字段名.date 则转成yyyy-MM-dd格式，字段名.dateTime则转换成yyyy-MM-dd HH:mm:ss格式
+      </div>
+      <div class="el-upload__tip">
+        字段名.date(format):则转换成对应的时间格式，支持格式：yyyy-MM-dd HH:mm:ss|yyyy-MM-dd HH:mm
+        |yyyy-MM-dd|yyyy-MM|yyyyMM|yyyyMMdd，以上前提都是单元格必须是日期格式，若是其他格式则不做任何加工
+      </div>
     </template>
   </el-upload>
   <el-form label-position="left" label-width="120px" style="margin-top: 20px">
@@ -47,7 +54,7 @@
 
     <el-form-item label="SQL生成结果：" style="width: 600px">
       <el-input type="textarea" v-model="result" placeholder="请选择EXCEL文件生成SQL语句" disabled
-                :autosize="{ minRows: 12, maxRows: 12 }"></el-input>
+                :autosize="{ minRows: 8, maxRows: 12 }"></el-input>
     </el-form-item>
   </el-form>
   <el-row style="margin-top: 20px">
@@ -58,7 +65,7 @@
 
 <script setup lang="ts">
 import {ElMessage} from 'element-plus'
-import {copyText, json2sql, isUtoolsEnv} from '../../utils'
+import {copyText, json2sql, isUtoolsEnv, isNumber} from '../../utils'
 import * as XLSX from 'xlsx';
 
 const types = ref([{name: 'INSERT', type: 'INSERT'},
@@ -116,13 +123,23 @@ function parseJsonByFile(file: File) {
     }
 
     const jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1, range: range});
+
     const header: any = jsonData[0];
     const jsonDataWithoutHeader = jsonData.slice(1);
 
     const jsonDataWithHeaders = jsonDataWithoutHeader.map((row: any) => {
       const obj: any = {};
       header.forEach((col: any, index: any) => {
-        obj[col] = row[index];
+        const format = extractStringFromBrackets(col)
+        if (format) {
+          obj[col.split('.date')[0]] = isNumber(row[index]) ? convertExcelDate(row[index], format) : row[index];
+        } else if (col.endsWith('.date')) {
+          obj[col.slice(0, -5)] = isNumber(row[index]) ? convertExcelDate(row[index], 'yyyy-MM-dd') : row[index];
+        } else if (col.endsWith('.dateTime')) {
+          obj[col.slice(0, -9)] = isNumber(row[index]) ? convertExcelDate(row[index], 'yyyy-MM-dd HH:mm:ss') : row[index];
+        } else {
+          obj[col] = row[index];
+        }
       });
       return obj;
     });
@@ -135,6 +152,63 @@ function parseJsonByFile(file: File) {
     copySql()
   };
   reader.readAsArrayBuffer(file);
+}
+
+const extractStringFromBrackets = (str: string): string => {
+  // 正则表达式匹配 .date(任意字符，非贪婪模式) 并捕获括号内的内容
+  const regex = /date\(([^)]+)\)/;
+  const match = str.match(regex);
+
+  // 如果正则表达式匹配成功，返回括号内的字符串
+  if (match && match[1]) {
+    return match[1];
+  } else {
+    return '';
+  }
+}
+
+const convertExcelDate = (excelDate: number, format: string): string | null => {
+  if (!excelDate) {
+    return null
+  }
+  // Excel日期1900年1月0日到1970年1月1日的天数
+  const excelBaseDate = 25569;
+
+  // 将Excel日期转换为从1970年1月1日开始的毫秒数(考虑时区差异)
+  // const excelDateInMilliseconds = (excelDate - excelBaseDate) * 24 * 60 * 60 * 1000;
+  const excelDateInMilliseconds = (excelDate - excelBaseDate) * 24 * 60 * 60 * 1000
+  -(7 * 60 * 60 * 1000 + 59 * 60 * 1000 + 59 * 1000 + 999);
+
+  // 创建一个新的日期对象，设置为1970年1月1日
+  var baseDate = new Date(Date.UTC(1970, 0, 1));
+
+  // 设置日期为1970年1月1日加上转换后的毫秒数
+  var date = new Date(baseDate.getTime() + excelDateInMilliseconds);
+
+  // 定义一个辅助函数来获取指定位数的日期部分
+  var getFormattedPart = (value: any) => String(value).padStart(2, '0');
+  // 定义一个辅助函数来获取毫秒部分
+  var getMilliseconds = () => String(date.getUTCMilliseconds()).padStart(3, '0');
+  // 根据目标格式返回格式化的日期字符串
+  switch (format) {
+    case 'yyyy-MM-dd HH:mm:ss':
+      return `${date.getFullYear()}-${getFormattedPart(date.getMonth() + 1)}-${getFormattedPart(date.getDate())} ${getFormattedPart(date.getHours())}:${getFormattedPart(date.getMinutes())}:${getFormattedPart(date.getSeconds())}`;
+    case 'yyyy-MM-dd HH:mm:ss.SSS':
+      return `${date.getFullYear()}-${getFormattedPart(date.getMonth() + 1)}-${getFormattedPart(date.getDate())} ${getFormattedPart(date.getHours())}:${getFormattedPart(date.getMinutes())}:${getFormattedPart(date.getSeconds())}.${getMilliseconds()}`;
+    case 'yyyy-MM-dd HH:mm':
+      return `${date.getFullYear()}-${getFormattedPart(date.getMonth() + 1)}-${getFormattedPart(date.getDate())} ${getFormattedPart(date.getHours())}:${getFormattedPart(date.getMinutes())}`;
+    case 'yyyy-MM-dd':
+      return `${date.getFullYear()}-${getFormattedPart(date.getMonth() + 1)}-${getFormattedPart(date.getDate())}`;
+    case 'yyyy-MM':
+      return `${date.getFullYear()}-${getFormattedPart(date.getMonth() + 1)}`;
+    case 'yyyyMM':
+      return `${date.getFullYear()}${getFormattedPart(date.getMonth() + 1)}`;
+    case 'yyyyMMdd':
+      return `${date.getFullYear()}${getFormattedPart(date.getMonth() + 1)}${getFormattedPart(date.getDate())}`;
+    default:
+      ElMessage.error('日期格式不支持' + format)
+      throw new Error('Unsupported format');
+  }
 }
 
 const typeChange = () => {

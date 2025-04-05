@@ -210,7 +210,7 @@ const shardingObj: Ref<ShardingObject> = ref({
 
 const strategyDesc = ref('tableIndex = shardingValue%(tableNum*dbNum); dbIndex = tableIndex/tableNum')
 
-const historyLength = 20
+const historyLength = 50
 
 const shardingStrategies = ref([{code: 'default', name: '将分片值直接运算'}, {
   code: 'hashcode',
@@ -371,7 +371,7 @@ const formatSql = () => {
   }
 
   try {
-    shardingObj.value.result = format(shardingObj.value.result, {language: 'mysql'})
+    shardingObj.value.result = format(shardingObj.value.result, {language: 'plsql'})
   } catch (e) {
     shardingObj.value.result = ''
     return ElMessage.error('请输入正确的SQL')

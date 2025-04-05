@@ -49,6 +49,7 @@
 import {ElMessage} from 'element-plus'
 import {copyText, escapeQuotMarks, isNumber, saveDb, queryDb} from '../../utils'
 import {format} from 'sql-formatter';
+import {useRoute} from "vue-router";
 
 const types = ref([{name: 'mybatis日志解析', type: 'mybatis'},
   {name: 'ShardingSphere SQL日志解析', type: 'ShardingSphere'}, {name: '通用SQL日志解析', type: 'normal'}])
@@ -75,7 +76,16 @@ const generateResultAndCopy = () => {
 
 if (onMounted) {
   onMounted(() => {
-    type.value = queryDb("parse-sql-type-histo") || '';
+    const route = useRoute();
+    const payload = route.query?.payload
+    if (payload) {
+      let initSql: string = typeof payload === 'string' ? payload.toString() : JSON.stringify(payload)
+      sqlSample.value = initSql
+      type.value = initSql.indexOf(":::") >= 0 ? 'ShardingSphere' : 'mybatis'
+      generateResult()
+    } else {
+      type.value = queryDb("parse-sql-type-histo") || '';
+    }
   })
 }
 
@@ -110,7 +120,7 @@ const generateNormalResult = () => {
   let paramsStr = paramSample.value.trim().replace(/\n/g, ' ').replace(/ +/g, " ")
   paramsStr = paramsStr.startsWith('[') && paramsStr.endsWith(']') ? paramsStr.slice(1, -1) : paramsStr
   let params: any[] = []
-  parse2Arr(params, paramsStr)
+  parseParams(params, sqlSampleValue, paramsStr)
   sqlResult.value = parseSql(sqlSampleValue, params);
 }
 
@@ -124,7 +134,7 @@ const generateMybatisResult = () => {
   sql = sql.replace(/\n/g, ' ').replace(/ +/g, " ")
   paramsStr = paramsStr.replace(/\n/g, ' ').replace(/ +/g, " ")
   let params: any[] = []
-  parse2Arr(params, paramsStr)
+  parseParams(params, sql, paramsStr)
   sqlResult.value = parseSql(sql, params);
 }
 
@@ -137,7 +147,7 @@ const generateShardingSphereResult = () => {
   let dbName = ''
   let paramsStr: string = sqlSampleValue.slice(sqlSampleValue.indexOf('::: [') + 5, sqlSampleValue.lastIndexOf(']'))
   let params: any[] = []
-  parse2Arr(params, paramsStr.trim())
+  parseParams(params, sqlSample.value, paramsStr.trim())
 
   let countSeq = countSeparator(sqlSample.value, ':::')
   if (countSeq == 1) {
@@ -162,10 +172,24 @@ const replaceDbName = (sql: string, dbBeforeStr: string, dbName: string): string
   return sql.replace(eval('/' + dbBeforeStr.toUpperCase() + '/g'), dbBeforeStr.toUpperCase() + dbName + (dbName ? '.' : ''))
 }
 
+const parseParams = (arr: any[], sql: string, params: string) => {
+  if (!params) {
+    const count = countSeparator(sql, '\\?')
+    if (count > 1) {
+      ElMessage.info(`请输入要正确的SQL日志和参数样本`)
+    } else if (count == 1) {
+      arr.push('')
+    }
+    return
+  }
+  parse2Arr(arr, params);
+}
+
 // 解析参数到数组中
 const parse2Arr = (arr: any[], params: string) => {
   params = params.trim()
   if (!params) {
+    arr.push('')
     return
   }
   if (params.indexOf(',') < 0) {
@@ -292,7 +316,7 @@ const formatSql = () => {
   generateResult()
 
   try {
-    sqlResult.value = format(sqlResult.value, {language: 'mysql'})
+    sqlResult.value = format(sqlResult.value, {language: 'plsql'})
   } catch (e) {
     sqlResult.value = ''
     return ElMessage.error('请输入正确的SQL')
