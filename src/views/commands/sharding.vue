@@ -88,7 +88,8 @@
       <h4 class="m-y-0 text-lg font-semibold" style="">历史记录({{ historyLength }}条)</h4>
       <div class="flex items-center space-x-4 justify-end">
         <el-input placeholder="模糊搜索库名信息" v-model="searchValue" clearable style="width: 200px;"></el-input>
-        <el-button type="primary" @click.native.stop="doSearch">搜索</el-button>
+        <el-button type="primary" @click.native.stop="doSearch(false)">搜索</el-button>
+        <el-button @click.native.stop="doSearch(true)">取消搜索</el-button>
         <el-popconfirm width="220" title="确认清空历史，清空后将无法恢复和应用历史记录?" @confirm="clearHistory">
           <template #reference>
             <el-button>清空历史</el-button>
@@ -392,14 +393,15 @@ const strategyChange = () => {
 }
 
 
-const doSearch = () => {
+const doSearch = (cancel: boolean) => {
+  if (cancel) {
+    searchValue.value = ''
+  }
   if (searchValue.value) {
     let cacheData = queryDb('historyList')
-    let cacheList = cacheData ? JSON.parse(cacheData) : [];
-    const filteredList = cacheList.filter((item) =>
+    let cacheList: ShardingObject[] = cacheData ? JSON.parse(cacheData) : [];
+    historyList.value = cacheList.filter(item =>
         item.dbName.includes(searchValue.value) || item.tableName.includes(searchValue.value))
-
-    historyList.value = filteredList
   } else {
     initHistory();
   }
