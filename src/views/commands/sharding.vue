@@ -79,17 +79,23 @@
     </el-form-item>
   </el-form>
   <div class="m-y-20px flex items-center justify-end">
-    <el-popconfirm width="220" title="确认清空历史，清空后将无法恢复和应用历史记录?" @confirm="clearHistory">
-      <template #reference>
-        <el-button>清空历史</el-button>
-      </template>
-    </el-popconfirm>
     <el-button type="primary" @click.native.stop="generateResult">生 成</el-button>
     <el-button type="primary" @click="formatSql">美化SQL</el-button>
     <el-button @click="copyResult">复制结果</el-button>
   </div>
-  <div style="margin-top: -42px">
-    <h4 class="m-y-20px;">历史记录（保留库表名去重后最近{{ historyLength }}条）</h4>
+  <div>
+    <div class="m-y-20px flex items-center justify-between">
+      <h4 class="m-y-0 text-lg font-semibold" style="">历史记录({{ historyLength }}条)</h4>
+      <div class="flex items-center space-x-4 justify-end">
+        <el-input placeholder="模糊搜索库名信息" v-model="searchValue" clearable style="width: 200px;"></el-input>
+        <el-button type="primary" @click.native.stop="doSearch">搜索</el-button>
+        <el-popconfirm width="220" title="确认清空历史，清空后将无法恢复和应用历史记录?" @confirm="clearHistory">
+          <template #reference>
+            <el-button>清空历史</el-button>
+          </template>
+        </el-popconfirm>
+      </div>
+    </div>
     <el-collapse accordion v-model="isCollapse">
       <el-collapse-item v-for="(item, index ) in historyList" :key="index" style="position:relative;" :name="index+''">
         <template #title>
@@ -211,6 +217,7 @@ const shardingObj: Ref<ShardingObject> = ref({
 const strategyDesc = ref('tableIndex = shardingValue%(tableNum*dbNum); dbIndex = tableIndex/tableNum')
 
 const historyLength = 50
+const searchValue = ref('')
 
 const shardingStrategies = ref([{code: 'default', name: '将分片值直接运算'}, {
   code: 'hashcode',
@@ -382,6 +389,20 @@ const formatSql = () => {
 const strategyChange = () => {
   strategyDesc.value = shardingObj.value.strategy == 'hashcode' ? "先将shardingValue取java中的hash值：tableIndex = hash(shardingValue)%(tableNum*dbNum); dbIndex = tableIndex/tableNum" :
       "tableIndex = shardingValue%(tableNum*dbNum); dbIndex = tableIndex/tableNum"
+}
+
+
+const doSearch = () => {
+  if (searchValue.value) {
+    let cacheData = queryDb('historyList')
+    let cacheList = cacheData ? JSON.parse(cacheData) : [];
+    const filteredList = cacheList.filter((item) =>
+        item.dbName.includes(searchValue.value) || item.tableName.includes(searchValue.value))
+
+    historyList.value = filteredList
+  } else {
+    initHistory();
+  }
 }
 
 </script>
