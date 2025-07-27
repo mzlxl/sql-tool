@@ -50,6 +50,11 @@ if (isUtoolsEnv()) {
       router.push({name: '/commands/excel2sql', query: {"payload": param}})
       return
     }
+
+    if (code === 'qr-code') {
+      router.push({name: '/commands/qr-code', query: {"payload": param}})
+      return
+    }
   })
 
   utools.onMainPush?.(

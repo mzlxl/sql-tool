@@ -53,6 +53,11 @@
       "code": "excel2sql",
       "explain": "一个基于utools的excel转SQL工具",
       "cmds": ["excel","file"]
+    },
+    {
+      "code": "qr-code",
+      "explain": "二维码在线生成器",
+      "cmds": ["qr","二维码"]
     }
   ]
 }
