@@ -220,10 +220,10 @@ const strategyDesc = ref('tableIndex = shardingValue%(tableNum*dbNum); dbIndex =
 const historyLength = 50
 const searchValue = ref('')
 
-const shardingStrategies = ref([{code: 'default', name: '将分片值直接运算'}, {
-  code: 'hashcode',
-  name: '将分片值取散列运算'
-}])
+const shardingStrategies = ref([{code: 'default', name: '将分片值直接运算'},
+  {code: 'hashcode', name: '将分片值取散列运算'},
+  {code: 'MurmurHash', name: '将分片值取MurmurHash'},
+])
 const shardingNums = ref([4, 8, 16, 32, 64, 128, 256, 512])
 const symbol = ref('')
 const isCollapse = ref('')
@@ -249,7 +249,11 @@ const generateResult = () => {
   }
   isCollapse.value = ''
   let shardingValue: bigint;
-  if (shardingObj.value.strategy == 'hashcode') {
+  if (shardingObj.value.strategy == 'MurmurHash') {
+    console.log(shardingObj.value.value)
+    shardingValue = BigInt(murmurHash64(shardingObj.value.value));
+    console.log(shardingValue)
+  } else if (shardingObj.value.strategy == 'hashcode') {
     shardingValue = BigInt(hashCode(shardingObj.value.value));
   } else {
     shardingValue = BigInt(shardingObj.value.value);
@@ -388,7 +392,12 @@ const formatSql = () => {
 }
 
 const strategyChange = () => {
-  strategyDesc.value = shardingObj.value.strategy == 'hashcode' ? "先将shardingValue取java中的hash值：tableIndex = hash(shardingValue)%(tableNum*dbNum); dbIndex = tableIndex/tableNum" :
+  if (shardingObj.value.strategy == 'MurmurHash') {
+    strategyDesc.value = '先将shardingValue取MurmurHash值：tableIndex = MurmurHash64(shardingValue)%(tableNum*dbNum); dbIndex = tableIndex/tableNum';
+    return;
+  }
+  strategyDesc.value = shardingObj.value.strategy == 'hashcode' ?
+      "先将shardingValue取java中的hash值：tableIndex = hash(shardingValue)%(tableNum*dbNum); dbIndex = tableIndex/tableNum" :
       "tableIndex = shardingValue%(tableNum*dbNum); dbIndex = tableIndex/tableNum"
 }
 
@@ -405,6 +414,165 @@ const doSearch = (cancel: boolean) => {
   } else {
     initHistory();
   }
+}
+
+// Hutool MurmurHash64 常量
+const C1 = 0x87c37b91114253d5n;
+const C2 = 0x4cf5ad432745937fn;
+const R1 = 31;
+const R2 = 27;
+const M = 5;
+const N1 = 0x52dce729;
+const DEFAULT_SEED = 0;
+
+function murmurHash64(key: string) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(key);
+  const length = data.length;
+
+  let hash = BigInt(DEFAULT_SEED);
+  const nblocks = length >> 3;
+
+  // body
+  for (let i = 0; i < nblocks; i++) {
+    const i8 = i << 3;
+    let k = BigInt(data[i8] & 0xff) |
+        (BigInt(data[i8 + 1] & 0xff) << 8n) |
+        (BigInt(data[i8 + 2] & 0xff) << 16n) |
+        (BigInt(data[i8 + 3] & 0xff) << 24n) |
+        (BigInt(data[i8 + 4] & 0xff) << 32n) |
+        (BigInt(data[i8 + 5] & 0xff) << 40n) |
+        (BigInt(data[i8 + 6] & 0xff) << 48n) |
+        (BigInt(data[i8 + 7] & 0xff) << 56n);
+
+    // mix functions
+    k *= C1;
+    k = rotateLeft(k, R1);
+    k *= C2;
+    hash ^= k;
+    hash = rotateLeft(hash, R2) * BigInt(M) + BigInt(N1);
+  }
+
+  let k1 = 0n;
+  const tailStart = nblocks << 3;
+  switch (length - tailStart) {
+    case 7:
+      k1 ^= BigInt(data[tailStart + 6] & 0xff) << 48n;
+    case 6:
+      k1 ^= BigInt(data[tailStart + 5] & 0xff) << 40n;
+    case 5:
+      k1 ^= BigInt(data[tailStart + 4] & 0xff) << 32n;
+    case 4:
+      k1 ^= BigInt(data[tailStart + 3] & 0xff) << 24n;
+    case 3:
+      k1 ^= BigInt(data[tailStart + 2] & 0xff) << 16n;
+    case 2:
+      k1 ^= BigInt(data[tailStart + 1] & 0xff) << 8n;
+    case 1:
+      k1 ^= BigInt(data[tailStart] & 0xff);
+      k1 = multiplyLong(k1, C1);
+      k1 = rotateLeft(k1, R1);
+      k1 = multiplyLong(k1, C2);
+      hash = xorLong(hash, k1);
+  }
+
+  hash = xorLong(hash, BigInt(length));
+  hash = fmix64(hash);
+  return hash > 0 ? hash : -hash;
+};
+
+
+function rotateLeft(value: bigint, distance: number) {
+  // 确保distance在0-63范围内（Java的处理方式）
+  const normalizedDistance = distance & 63;
+  if (normalizedDistance === 0) {
+    return value;
+  }
+
+  // 关键：先将数值转换为64位无符号表示进行移位操作
+  const mask = 0xFFFFFFFFFFFFFFFFn;
+  const unsignedValue = value & mask;
+
+  // 计算左移和右移的部分
+  const leftPart = (unsignedValue << BigInt(normalizedDistance)) & mask;
+  const rightPart = unsignedValue >> BigInt(64 - normalizedDistance);
+
+  // 合并结果并保持64位表示
+  return leftPart | rightPart;
+};
+
+function fmix64(h: bigint) {
+  // 确保输入是BigInt类型
+  if (typeof h !== 'bigint') {
+    throw new Error('输入必须是BigInt类型');
+  }
+
+  // h ^= (h >>> 33)
+  h ^= unsignedRightShift64(h, 33);
+
+  // h *= 0xff51afd7ed558ccdL
+  h = multiplyLong(h, 0xff51afd7ed558ccdn);
+
+  // h ^= (h >>> 33)
+  h ^= unsignedRightShift64(h, 33);
+
+  // h *= 0xc4ceb9fe1a85ec53L
+  h = multiplyLong(h, 0xc4ceb9fe1a85ec53n);
+
+  // h ^= (h >>> 33)
+  h ^= unsignedRightShift64(h, 33);
+
+  return h;
+}
+
+function unsignedRightShift64(value: bigint, shift: number) {
+  if (shift === 0) return value;
+  // 先转换为无符号64位表示，再进行右移
+  const mask = 0xFFFFFFFFFFFFFFFFn;
+  const unsignedValue = value & mask;
+  return unsignedValue >> BigInt(shift);
+}
+
+function xorLong(p1: bigint, p2: bigint) {
+  // 确保输入为BigInt
+  if (typeof p1 !== 'bigint' || typeof p2 !== 'bigint') {
+    throw new Error('输入必须是BigInt类型');
+  }
+
+  // 关键：保留64位并处理符号位
+  const mask = 0xFFFFFFFFFFFFFFFFn;
+  let result = (p1 ^ p2) & mask;
+
+  // 转换为64位有符号整数（Java long的表示方式）
+  const maxPositive = 0x7FFFFFFFFFFFFFFFn;
+  if (result > maxPositive) {
+    result -= 0x10000000000000000n;
+  }
+
+  return result;
+}
+
+function multiplyLong(a: bigint, b: bigint) {
+  // 1. 确保输入是BigInt类型
+  if (typeof a !== 'bigint' || typeof b !== 'bigint') {
+    throw new Error('输入必须是BigInt类型');
+  }
+
+  // 2. 执行乘法（使用完整精度）
+  const product = a * b;
+
+  // 3. 模拟Java long的64位截断（关键步骤）
+  // 保留低64位并转换为有符号整数
+  const mask = 0xFFFFFFFFFFFFFFFFn;
+  let result = product & mask;
+
+  // 4. 处理符号位（如果是负数）
+  const maxPositive = 0x7FFFFFFFFFFFFFFFn; // 2^63 - 1
+  if (result > maxPositive) {
+    result -= 0x10000000000000000n; // 转换为64位有符号负数
+  }
+
+  return result;
 }
 
 </script>
