@@ -11,7 +11,7 @@
     <el-form-item label="二维码设置：">
       <el-row :gutter="20">
         <el-col :span="8">
-          <el-form-item label="尺寸：" label-width="50px">
+          <el-form-item label="尺寸：" label-width="60px">
             <el-select v-model="size" placeholder="选择尺寸" class="w-100px">
               <el-option label="128x128" :value="128"></el-option>
               <el-option label="256x256" :value="256"></el-option>
@@ -20,7 +20,7 @@
           </el-form-item>
         </el-col>
         <el-col :span="8">
-          <el-form-item label="容错级别：" label-width="70px">
+          <el-form-item label="容错级别：" label-width="90px">
             <el-select v-model="errorCorrectionLevel" placeholder="选择容错级别" class="w-100px">
               <el-option label="低" value="L"></el-option>
               <el-option label="中" value="M"></el-option>
@@ -30,20 +30,21 @@
           </el-form-item>
         </el-col>
         <el-col :span="8">
-          <el-form-item label="边距：" label-width="50px">
+          <el-form-item label="边距：" label-width="60px">
             <el-input-number v-model="margin" :min="0" :max="10" class="w-100px"></el-input-number>
           </el-form-item>
         </el-col>
       </el-row>
     </el-form-item>
-    
+
     <el-form-item label="二维码预览：">
       <div class="qr-preview-container">
         <div v-if="qrCodeDataUrl" class="qr-preview">
           <img :src="qrCodeDataUrl" :alt="text" class="qr-image" />
         </div>
-        <div v-else class="qr-placeholder" style="width: 100%">
+        <div v-else class="qr-placeholder">
           <el-icon class="qr-placeholder-icon"><Picture /></el-icon>
+          <p>输入文本内容后预览二维码</p>
         </div>
       </div>
     </el-form-item>
@@ -149,6 +150,7 @@ watch([size, errorCorrectionLevel, margin], () => {
   border: 1px dashed #d9d9d9;
   border-radius: 6px;
   background-color: #fafafa;
+  width: 100%;
 }
 
 .qr-preview {
