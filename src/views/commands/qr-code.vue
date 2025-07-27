@@ -3,11 +3,11 @@
   <h2 class="m-y-20px">二维码生成器</h2>
   <el-form label-position="left" label-width="100px">
     <el-form-item label="文本内容：">
-      <el-input type="textarea" v-model="text" 
+      <el-input type="textarea" v-model="text"
                 placeholder="请输入要生成二维码的文本内容"
                 :autosize="{ minRows: 4, maxRows: 8 }"></el-input>
     </el-form-item>
-    
+
     <el-form-item label="二维码设置：">
       <el-row :gutter="20">
         <el-col :span="8">
@@ -15,7 +15,7 @@
             <el-select v-model="size" placeholder="选择尺寸" class="w-100px">
               <el-option label="128x128" :value="128"></el-option>
               <el-option label="256x256" :value="256"></el-option>
-              <el-option label="512x512" :value="512"></el-option>
+<!--              <el-option label="512x512" :value="512"></el-option>-->
             </el-select>
           </el-form-item>
         </el-col>
@@ -40,26 +40,28 @@
     <el-form-item label="二维码预览：">
       <div class="qr-preview-container">
         <div v-if="qrCodeDataUrl" class="qr-preview">
-          <img :src="qrCodeDataUrl" :alt="text" class="qr-image" />
+          <img :src="qrCodeDataUrl" :alt="text" class="qr-image"/>
         </div>
         <div v-else class="qr-placeholder">
-          <el-icon class="qr-placeholder-icon"><Picture /></el-icon>
+          <el-icon class="qr-placeholder-icon">
+            <Picture/>
+          </el-icon>
           <p>输入文本内容后预览二维码</p>
         </div>
       </div>
     </el-form-item>
   </el-form>
-  
+
   <div class="m-y-20px flex items-center justify-end">
     <el-button @click="clear">清 空</el-button>
-    <el-button type="primary" @click="generateResult" :disabled="!text.trim()">生 成</el-button>
-    <el-button @click="downloadQR" :disabled="!qrCodeDataUrl">下载二维码</el-button>
+    <!--    <el-button type="primary" @click="generateResult" :disabled="!text.trim()">生 成</el-button>-->
+    <el-button type="primary" @click="downloadQR" :disabled="!qrCodeDataUrl">下载二维码</el-button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ElMessage } from 'element-plus'
-import { Picture } from '@element-plus/icons-vue'
+import {ElMessage} from 'element-plus'
+import {Picture} from '@element-plus/icons-vue'
 import QRCode from 'qrcode'
 
 const text = ref('')
@@ -73,7 +75,7 @@ const generateResult = async () => {
     ElMessage.info('请输入要生成二维码的文本内容')
     return
   }
-  
+
   try {
     const options: QRCode.QRCodeToDataURLOptions = {
       width: size.value,
@@ -84,7 +86,8 @@ const generateResult = async () => {
       },
       errorCorrectionLevel: errorCorrectionLevel.value as QRCode.QRCodeErrorCorrectionLevel
     }
-    
+
+    console.log(options)
     const dataUrl = await QRCode.toDataURL(text.value, options)
     qrCodeDataUrl.value = dataUrl
     ElMessage.success('二维码生成成功')
@@ -99,7 +102,7 @@ const downloadQR = () => {
     ElMessage.info('请先生成二维码')
     return
   }
-  
+
   try {
     const link = document.createElement('a')
     link.download = `qrcode-${Date.now()}.png`
