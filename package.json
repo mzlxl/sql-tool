@@ -10,15 +10,17 @@
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.1.0",
+    "@types/qrcode": "^1.5.5",
     "@vueuse/core": "^10.3.0",
     "element-plus": "^2.3.9",
     "jsoneditor": "^9.10.3",
     "lodash.clonedeep": "^4.5.0",
     "pinia": "^2.1.6",
+    "qrcode": "^1.5.4",
     "sql-formatter": "^13.0.0",
     "vue": "^3.3.4",
     "vue-router": "^4.2.4",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.20.2"
   },
   "devDependencies": {
     "@types/jsoneditor": "^9.9.2",

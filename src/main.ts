@@ -14,41 +14,45 @@ import 'element-plus/theme-chalk/el-dialog.css'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import {isUtoolsEnv} from './utils/index'
 
+const cmds = ["format", "美化", "格式化", "sql", "sharding", "分库分表", "路由", "行转列",
+  "列转行", "col", "row", "parse", "解析", "日志", "mybatis", "json", "转换", "excel", "file"]
 if (isUtoolsEnv()) {
   utools.onPluginEnter(({code, type, payload}) => {
-    // if (code === 'setting') {
-    //   router.push({ name: '/commands/' })
-    //   return
-    // }
+    let param = cmds.includes(payload) ? null : payload
     if (code === 'format') {
       // 所有指令的列表，方便选择未添加到utools快捷启动的命令
-      router.push({name: '/commands/format-sql'})
+      router.push({name: '/commands/format-sql', query: {"payload": param}})
       return
     }
 
     if (code === 'sharding') {
-      router.push({name: '/commands/sharding'})
+      router.push({name: '/commands/sharding', query: {"payload": param}})
       return
     }
 
     if (code === 'col2row') {
-      router.push({name: '/commands/col2row'})
+      router.push({name: '/commands/col2row', query: {"payload": param}})
       return
     }
 
     if (code === 'json2sql') {
-      router.push({name: '/commands/json2sql'})
+      router.push({name: '/commands/json2sql', query: {"payload": param}})
       return
     }
 
     if (code === 'parse-sql') {
       // 所有指令的列表，方便选择未添加到utools快捷启动的命令
-      router.push({name: '/commands/parse-sql'})
+      router.push({name: '/commands/parse-sql', query: {"payload": param}})
       return
     }
 
     if (code === 'excel2sql') {
-      router.push({name: '/commands/excel2sql'})
+      router.push({name: '/commands/excel2sql', query: {"payload": param}})
+      return
+    }
+
+    if (code === 'qr-code') {
+      router.push({name: '/commands/qr-code', query: {"payload": param}})
       return
     }
   })
