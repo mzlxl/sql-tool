@@ -84,7 +84,16 @@ const generateResult = () => {
     return
   }
   try {
-    sqlResult.value = format(sql.value, {language: type.value})
+    sqlResult.value = format(sql.value, {
+      language: type.value,
+      keywordCase: 'upper',
+      expressionWidth: 200,
+      tabWidth: 2,
+      linesBetweenQueries: 1,
+      denseOperators: false,
+      newlineBeforeSemicolon: false,
+      logicalOperatorNewline: 'before'
+    })
   } catch (e) {
     sqlResult.value = ''
     if (type.value === 'sql') {
