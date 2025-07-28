@@ -20,6 +20,7 @@
   <div class="m-y-20px flex items-center justify-end">
     <el-button @click="clear">清 空</el-button>
     <el-button type="primary" @click="generateResult">生 成</el-button>
+    <el-button type="primary" @click="compressSql">压缩SQL</el-button>
     <el-button @click="copyResult">复制结果</el-button>
   </div>
 
@@ -93,6 +94,27 @@ const generateResult = () => {
   }
 
   copyResult()
+}
+
+const compressSql = () => {
+  if (!sql.value || sql.value.trim() == '') {
+    ElMessage.info(`请输入要压缩的SQL样本`)
+    return
+  }
+  try {
+    // 移除多余的空白字符和换行符，将SQL压缩为一行
+    const compressed = sql.value
+      .replace(/\s+/g, ' ')  // 将多个空白字符替换为单个空格
+      .replace(/\s*([,()])\s*/g, '$1')  // 移除逗号和括号周围的空格
+      .replace(/\s*([=<>!+\-*/])\s*/g, ' $1 ')  // 在操作符周围保留空格
+      .replace(/\s+/g, ' ')  // 再次清理多余空格
+      .trim()
+    
+    sqlResult.value = compressed
+  } catch (e) {
+    sqlResult.value = ''
+    return ElMessage.error('SQL压缩失败，请检查输入')
+  }
 }
 
 const copyResult = () => {
