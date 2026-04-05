@@ -7,7 +7,7 @@
       <el-form-item label="数据库类型">
         <el-radio-group v-model="databaseType" class="db-radio-group">
           <el-radio-button value="mysql">MySQL</el-radio-button>
-          <el-radio-button value="hive">Hive</el-radio-button>
+<!--          <el-radio-button value="hive">Hive</el-radio-button>-->
           <el-radio-button value="doris">Doris</el-radio-button>
           <el-radio-button value="postgresql">PostgreSQL</el-radio-button>
           <el-radio-button value="oracle">Oracle</el-radio-button>
