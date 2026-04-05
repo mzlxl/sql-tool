@@ -15,7 +15,7 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import {isUtoolsEnv} from './utils/index'
 
 const cmds = ["format", "美化", "格式化", "sql", "sharding", "分库分表", "路由", "行转列",
-  "列转行", "col", "row", "parse", "解析", "日志", "mybatis", "json", "转换", "excel", "file", "timestamp", "时间戳", "日期转换", "时间转换", "sjc", "timestamp-sql", "时间戳SQL", "时间戳转日期", "FROM_UNIXTIME"]
+  "列转行", "col", "row", "parse", "解析", "日志", "mybatis", "json", "转换", "excel", "file", "timestamp", "时间戳", "日期转换", "时间转换", "sjc", "timestamp-sql", "时间戳SQL", "时间戳转日期", "FROM_UNIXTIME", "test-data", "测试数据", "数据生成", "sql-diff", "SQL对比", "差异对比", "SQL差异"]
 if (isUtoolsEnv()) {
   utools.onPluginEnter(({code, type, payload}) => {
     let param = cmds.includes(payload) ? null : payload
@@ -63,6 +63,16 @@ if (isUtoolsEnv()) {
 
     if (code === 'timestamp-to-sql') {
       router.push({name: '/commands/timestamp-to-sql', query: {"payload": param}})
+      return
+    }
+
+    if (code === 'test-data-generator') {
+      router.push({name: '/commands/test-data-generator', query: {"payload": param}})
+      return
+    }
+
+    if (code === 'sql-diff') {
+      router.push({name: '/commands/sql-diff', query: {"payload": param}})
       return
     }
   })

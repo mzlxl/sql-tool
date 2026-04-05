@@ -68,6 +68,16 @@
       "code": "timestamp-to-sql",
       "explain": "时间戳字段转日期SQL生成器",
       "cmds": ["timestamp-sql","时间戳SQL","时间戳转日期","FROM_UNIXTIME"]
+    },
+    {
+      "code": "test-data-generator",
+      "explain": "批量测试数据生成器",
+      "cmds": ["test-data","测试数据","数据生成","mock数据"]
+    },
+    {
+      "code": "sql-diff",
+      "explain": "SQL差异对比工具",
+      "cmds": ["sql-diff","SQL对比","差异对比","SQL差异","diff"]
     }
   ]
 }
