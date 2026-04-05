@@ -401,7 +401,8 @@ const generateData = () => {
   }
 
   result.value = sqls.join('\n\n')
-  ElMessage.success(`成功生成 ${count} 条 ${sqlType} 语句`)
+  copyText(result.value)
+  ElMessage.success(`成功生成 ${count} 条 ${sqlType} 语句，已复制到剪贴板`)
 }
 
 const clear = () => {
