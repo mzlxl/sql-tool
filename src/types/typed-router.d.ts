@@ -48,6 +48,7 @@ declare module 'vue-router/auto/routes' {
     '/commands/qr-code': RouteRecordInfo<'/commands/qr-code', '/commands/qr-code', Record<never, never>, Record<never, never>>,
     '/commands/sharding': RouteRecordInfo<'/commands/sharding', '/commands/sharding', Record<never, never>, Record<never, never>>,
     '/commands/timestamp': RouteRecordInfo<'/commands/timestamp', '/commands/timestamp', Record<never, never>, Record<never, never>>,
+    '/commands/timestamp-to-sql': RouteRecordInfo<'/commands/timestamp-to-sql', '/commands/timestamp-to-sql', Record<never, never>, Record<never, never>>,
   }
 }
 

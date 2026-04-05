@@ -63,6 +63,11 @@
       "code": "timestamp",
       "explain": "时间戳与日期转换工具",
       "cmds": ["timestamp","时间戳","日期转换","时间转换","sjc","date"]
+    },
+    {
+      "code": "timestamp-to-sql",
+      "explain": "时间戳字段转日期SQL生成器",
+      "cmds": ["timestamp-sql","时间戳SQL","时间戳转日期","FROM_UNIXTIME"]
     }
   ]
 }
