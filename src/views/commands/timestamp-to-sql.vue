@@ -207,13 +207,14 @@ const formatMappings: Record<string, Record<string, string>> = {
   },
 }
 
-// 获取时间戳字段表达式（根据单位转换）
-const getTimestampField = (field: string): string => {
+// 获取时间戳字段表达式（根据单位转换），Oracle 需要浮点除法避免整数截断
+// 毫秒/纳秒场景下，除数加了 .0 后缀（如 field / 1000.0），确保 Oracle 做浮点除法而非整数截断，避免时间精度丢失
+const getTimestampField = (field: string, forOracle = false): string => {
   switch (timestampUnit.value) {
     case 'millisecond':
-      return `${field} / 1000`
+      return forOracle ? `${field} / 1000.0` : `${field} / 1000`
     case 'nanosecond':
-      return `${field} / 1000000000`
+      return forOracle ? `${field} / 1000000000.0` : `${field} / 1000000000`
     case 'second':
     default:
       return field
@@ -245,9 +246,11 @@ const generateSQL = () => {
     case 'postgresql':
       generatedSQL.value = `TO_CHAR(TO_TIMESTAMP(${timestampField}), '${dbFormat}')`
       break
-    case 'oracle':
-      generatedSQL.value = `TO_CHAR(TO_DATE('1970-01-01','YYYY-MM-DD') + ${timestampField} / 86400, '${dbFormat}')`
+    case 'oracle': {
+      const oracleTimestampField = getTimestampField(field, true)
+      generatedSQL.value = `TO_CHAR(TO_DATE('1970-01-01','YYYY-MM-DD') + ${oracleTimestampField} / 86400, '${dbFormat}')`
       break
+    }
     default:
       generatedSQL.value = ''
   }
@@ -288,6 +291,9 @@ watch([fieldName, targetDateFormat, databaseType, timestampUnit], generateSQL)
 .quick-buttons {
   display: flex;
   flex-wrap: wrap;
+  align-content: flex-start;
+  justify-content: flex-start;
+  width: 100%;
   gap: 8px;
 
   .el-button {
