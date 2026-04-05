@@ -8,6 +8,7 @@
       <el-menu-item index="/commands/excel2sql">EXCEL转SQL</el-menu-item>
       <el-menu-item index="/commands/format-sql">漂亮SQL工具</el-menu-item>
       <el-menu-item index="/commands/qr-code">二维码生成器</el-menu-item>
+      <el-menu-item index="/commands/timestamp">日期转换工具</el-menu-item>
       <el-menu-item index="/about">关于插件</el-menu-item>
     </el-menu>
     <div class="view">

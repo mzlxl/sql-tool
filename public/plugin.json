@@ -58,6 +58,11 @@
       "code": "qr-code",
       "explain": "二维码在线生成器",
       "cmds": ["qr","二维码"]
+    },
+    {
+      "code": "timestamp",
+      "explain": "时间戳与日期转换工具",
+      "cmds": ["timestamp","时间戳","日期转换","时间转换","sjc","date"]
     }
   ]
 }
