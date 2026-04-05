@@ -70,16 +70,6 @@
     <!-- 日期格式转换 -->
     <el-divider content-position="left">日期格式转换</el-divider>
     <div class="flex gap-4 items-start flex-wrap">
-      <el-form-item label="源格式" class="w-360px">
-        <el-select placeholder="请选择源日期格式" filterable v-model="sourceDateFormat" allow-create>
-          <el-option label="YYYY-MM-DD HH:mm:ss" value="YYYY-MM-DD HH:mm:ss" />
-          <el-option label="YYYY-MM-DD" value="YYYY-MM-DD" />
-          <el-option label="YYYY/MM/DD HH:mm:ss" value="YYYY/MM/DD HH:mm:ss" />
-          <el-option label="YYYY年MM月DD日 HH:mm:ss" value="YYYY年MM月DD日 HH:mm:ss" />
-          <el-option label="MM/DD/YYYY HH:mm:ss" value="MM/DD/YYYY HH:mm:ss" />
-          <el-option label="DD-MM-YYYY HH:mm:ss" value="DD-MM-YYYY HH:mm:ss" />
-        </el-select>
-      </el-form-item>
       <el-form-item label="目标格式" class="w-360px">
         <el-select placeholder="请选择目标日期格式" filterable v-model="targetDateFormat" allow-create>
           <el-option label="YYYY-MM-DD HH:mm:ss" value="YYYY-MM-DD HH:mm:ss" />
@@ -135,7 +125,6 @@ const dateInput = ref('')
 const timestampInput = ref('')
 const dateToTimestampResult = ref('')
 const timestampToDateResult = ref('')
-const sourceDateFormat = ref('YYYY-MM-DD HH:mm:ss')
 const targetDateFormat = ref('YYYY/MM/DD HH:mm:ss')
 const formatSourceInput = ref('')
 const formatConversionResult = ref('')
@@ -269,13 +258,43 @@ const convertTimestampToDate = () => {
   ElMessage.success('已复制到剪贴板')
 }
 
+// 自动检测日期格式
+const detectDateFormat = (dateStr: string): string | null => {
+  const patterns = [
+    { regex: /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/, format: 'YYYY-MM-DD HH:mm:ss' },
+    { regex: /^\d{4}-\d{2}-\d{2}$/, format: 'YYYY-MM-DD' },
+    { regex: /^\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}$/, format: 'YYYY/MM/DD HH:mm:ss' },
+    { regex: /^\d{4}\/\d{2}\/\d{2}$/, format: 'YYYY/MM/DD' },
+    { regex: /^\d{4}年\d{2}月\d{2}日 \d{2}:\d{2}:\d{2}$/, format: 'YYYY年MM月DD日 HH:mm:ss' },
+    { regex: /^\d{4}年\d{2}月\d{2}日$/, format: 'YYYY年MM月DD日' },
+    { regex: /^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2}$/, format: 'MM/DD/YYYY HH:mm:ss' },
+    { regex: /^\d{2}\/\d{2}\/\d{4}$/, format: 'MM/DD/YYYY' },
+    { regex: /^\d{2}-\d{2}-\d{4} \d{2}:\d{2}:\d{2}$/, format: 'DD-MM-YYYY HH:mm:ss' },
+    { regex: /^\d{2}-\d{2}-\d{4}$/, format: 'DD-MM-YYYY' },
+    { regex: /^\d{4}\.\d{2}\.\d{2} \d{2}:\d{2}:\d{2}$/, format: 'YYYY.MM.DD HH:mm:ss' },
+    { regex: /^\d{4}\.\d{2}\.\d{2}$/, format: 'YYYY.MM.DD' },
+  ]
+
+  for (const pattern of patterns) {
+    if (pattern.regex.test(dateStr.trim())) {
+      return pattern.format
+    }
+  }
+  return null
+}
+
 // 日期格式转换（自动）
 const convertDateFormat = () => {
-  if (!formatSourceInput.value || !sourceDateFormat.value || !targetDateFormat.value) {
+  if (!formatSourceInput.value || !targetDateFormat.value) {
     formatConversionResult.value = ''
     return
   }
-  const date = parseDateByFormat(formatSourceInput.value, sourceDateFormat.value)
+  const detectedFormat = detectDateFormat(formatSourceInput.value)
+  if (!detectedFormat) {
+    formatConversionResult.value = ''
+    return
+  }
+  const date = parseDateByFormat(formatSourceInput.value, detectedFormat)
   if (!date || isNaN(date.getTime())) {
     formatConversionResult.value = ''
     return
@@ -337,7 +356,7 @@ const clear = () => {
 watch(dateInput, convertDateToTimestamp)
 watch(timestampInput, convertTimestampToDate)
 watch(formatSourceInput, convertDateFormat)
-watch(sourceDateFormat, convertDateFormat)
+
 watch(targetDateFormat, convertDateFormat)
 watch(timestampUnit, () => {
   convertDateToTimestamp()
