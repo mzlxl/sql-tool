@@ -70,7 +70,7 @@
           <div class="panel-header">原始文本</div>
           <div class="diff-split-content">
             <div class="diff-line" v-for="(line, index) in leftPanelLines" :key="'left-' + index" :class="line.type">
-              <span class="line-num">{{ line.num || '' }}</span>
+              <span class="line-num">{{ line.oldNum || '' }}</span>
               <span class="line-type">{{ getLineTypeSymbol(line.type === 'added' ? 'unchanged' : line.type) }}</span>
               <span class="line-content" v-html="highlightLine(line)"></span>
             </div>
@@ -80,7 +80,7 @@
           <div class="panel-header">对比文本</div>
           <div class="diff-split-content">
             <div class="diff-line" v-for="(line, index) in rightPanelLines" :key="'right-' + index" :class="line.type">
-              <span class="line-num">{{ line.num || '' }}</span>
+              <span class="line-num">{{ line.newNum || '' }}</span>
               <span class="line-type">{{ getLineTypeSymbol(line.type === 'removed' ? 'unchanged' : line.type) }}</span>
               <span class="line-content" v-html="highlightLine(line)"></span>
             </div>
