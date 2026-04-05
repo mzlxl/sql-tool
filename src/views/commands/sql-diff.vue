@@ -1,29 +1,29 @@
 <template>
-  <h2 class="m-y-20px">SQL差异对比</h2>
+  <h2 class="m-y-20px">文本差异对比</h2>
 
   <el-row :gutter="20">
     <el-col :span="12">
       <div class="section-title">
-        <span>原始SQL</span>
+        <span>原始文本</span>
         <el-button type="primary" link size="small" @click="loadExample">加载示例</el-button>
       </div>
       <el-input
         v-model="originalSql"
         type="textarea"
         :autosize="{ minRows: 15, maxRows: 20 }"
-        placeholder="粘贴原始SQL..."
+        placeholder="粘贴原始文本..."
       />
     </el-col>
     <el-col :span="12">
       <div class="section-title">
-        <span>对比SQL</span>
+        <span>对比文本</span>
         <el-button type="primary" link size="small" @click="swapSql">交换内容</el-button>
       </div>
       <el-input
         v-model="compareSql"
         type="textarea"
         :autosize="{ minRows: 15, maxRows: 20 }"
-        placeholder="粘贴对比SQL..."
+        placeholder="粘贴对比文本..."
       />
     </el-col>
   </el-row>
@@ -67,7 +67,7 @@
       <!-- 并排视图 -->
       <div v-else class="diff-split-container" v-show="diffResult.length > 0">
         <div class="diff-split-panel">
-          <div class="panel-header">原始SQL</div>
+          <div class="panel-header">原始文本</div>
           <div class="diff-split-content">
             <div class="diff-line" v-for="(line, index) in leftPanelLines" :key="'left-' + index" :class="line.type">
               <span class="line-num">{{ line.num || '' }}</span>
@@ -77,7 +77,7 @@
           </div>
         </div>
         <div class="diff-split-panel">
-          <div class="panel-header">对比SQL</div>
+          <div class="panel-header">对比文本</div>
           <div class="diff-split-content">
             <div class="diff-line" v-for="(line, index) in rightPanelLines" :key="'right-' + index" :class="line.type">
               <span class="line-num">{{ line.num || '' }}</span>
@@ -101,7 +101,7 @@ const originalSql = ref('')
 const compareSql = ref('')
 const ignoreWhitespace = ref(true)
 const ignoreCase = ref(false)
-const viewMode = ref<'unified' | 'split'>('unified')
+const viewMode = ref<'unified' | 'split'>('split')
 
 interface DiffLine {
   oldNum?: number
@@ -272,7 +272,7 @@ const generateSplitView = (diff: DiffLine[]) => {
 // 对比差异
 const compare = () => {
   if (!originalSql.value || !compareSql.value) {
-    return ElMessage.warning('请输入原始SQL和对比SQL')
+    return ElMessage.warning('请输入原始文本和对比文本')
   }
 
   const lines1 = preprocessSql(originalSql.value)

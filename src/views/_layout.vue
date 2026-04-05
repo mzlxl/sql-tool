@@ -11,7 +11,7 @@
       <el-menu-item index="/commands/timestamp">日期转换工具</el-menu-item>
       <el-menu-item index="/commands/timestamp-to-sql">时间戳转SQL</el-menu-item>
       <el-menu-item index="/commands/test-data-generator">测试数据生成</el-menu-item>
-      <el-menu-item index="/commands/sql-diff">SQL差异对比</el-menu-item>
+      <el-menu-item index="/commands/sql-diff">文本差异对比</el-menu-item>
       <el-menu-item index="/about">关于插件</el-menu-item>
     </el-menu>
     <div class="view">

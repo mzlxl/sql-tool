@@ -76,8 +76,8 @@
     },
     {
       "code": "sql-diff",
-      "explain": "SQL差异对比工具",
-      "cmds": ["sql-diff","SQL对比","差异对比","SQL差异","diff"]
+      "explain": "文本差异对比工具",
+      "cmds": ["对比","差异","diff"]
     }
   ]
 }
