@@ -305,7 +305,7 @@ const parseParamByType = (p: any | undefined): string => {
       return p
     }
     let obj = parseObj(param)
-    if (obj && isNumber(obj)) {
+    if (obj !== null && obj !== undefined && isNumber(obj)) {
       return obj.toString()
     }
     return `'${escapeQuotMarks(param)}'`
