@@ -85,7 +85,7 @@
   </div>
   <div>
     <div class="m-y-20px flex items-center justify-between">
-      <h4 class="m-y-0 text-lg font-semibold" style="">历史记录({{ historyLength }}条)</h4>
+      <h4 class="m-y-0 text-lg font-semibold">历史记录({{ historyList.length }}条)</h4>
       <div class="flex items-center space-x-4 justify-end">
         <el-input placeholder="模糊搜索库名信息" v-model="searchValue" clearable style="width: 200px;"></el-input>
         <el-button type="primary" @click.native.stop="doSearch(false)">搜索</el-button>
@@ -98,21 +98,21 @@
       </div>
     </div>
     <el-collapse accordion v-model="isCollapse">
-      <el-collapse-item v-for="(item, index ) in historyList" :key="index" style="position:relative;" :name="index+''">
+      <el-collapse-item v-for="(item, index ) in historyList" :key="index" :name="index+''">
         <template #title>
-          <span style="font-size: 16px;margin-right: 150px;font-weight: 500;" class="ellipsis">
-            库表：{{ item?.dbName }}{{ item?.dbName ? '.' : '' }}{{ item?.tableName }}</span>
-          <el-button @click.stop.prevent="removeHistory(index)" round size="small"
-                     style="right: 100px;position: absolute">
-            移除
-          </el-button>
-          <el-button type="primary" @click.stop.prevent="useHistory(item)" round size="small"
-                     style="right: 45px;position: absolute">
-            应用
-          </el-button>
-          <!--          <el-icon class="header-icon">-->
-          <!--            <info-filled/>-->
-          <!--          </el-icon>-->
+          <div class="history-item-title">
+            <span class="ellipsis history-item-name">
+              库表：{{ item?.dbName }}{{ item?.dbName ? '.' : '' }}{{ item?.tableName }}
+            </span>
+            <div class="history-item-actions" @click.stop>
+              <el-button @click.stop.prevent="removeHistory(index)" round size="small">
+                移除
+              </el-button>
+              <el-button type="primary" @click.stop.prevent="useHistory(item)" round size="small">
+                应用
+              </el-button>
+            </div>
+          </div>
         </template>
         <el-form label-position="left" label-width="70px">
           <el-row>
@@ -217,7 +217,7 @@ const shardingObj: Ref<ShardingObject> = ref({
 
 const strategyDesc = ref('tableIndex = shardingValue%(tableNum*dbNum); dbIndex = tableIndex/tableNum')
 
-const historyLength = 50
+const historyLimit = 50
 const searchValue = ref('')
 
 const shardingStrategies = ref([{code: 'default', name: '将分片值直接运算'},
@@ -297,7 +297,7 @@ const assemblehistory = () => {
 }
 
 const removeHistoryByLimitLength = () => {
-  let pop = historyList.value.length - historyLength
+  let pop = historyList.value.length - historyLimit
   for (let i = 0; i < pop; i++) {
     historyList.value.pop()
   }
@@ -361,11 +361,15 @@ const clearHistory = () => {
 }
 
 const removeHistory = (index: number) => {
+  isCollapse.value = ''
   historyList.value.splice(index, 1)
+  saveDb('historyList', JSON.stringify(historyList.value))
+  groupDbAndTableNum()
   ElMessage.success('移除成功')
 }
 
 const useHistory = (item: ShardingObject) => {
+  isCollapse.value = ''
   shardingObj.value = cloneDeep(item) as ShardingObject
   assemblehistory()
   ElMessage.success('应用成功')
@@ -583,5 +587,26 @@ function multiplyLong(a: bigint, b: bigint) {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.history-item-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding-right: 30px;
+}
+
+.history-item-name {
+  font-size: 16px;
+  font-weight: 500;
+  flex: 1;
+  min-width: 0;
+}
+
+.history-item-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
 }
 </style>
