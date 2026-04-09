@@ -35,6 +35,13 @@ export const queryDb = (key: string): string | null => {
   }
 }
 
+export const removeDb = (key: string) => {
+  if (isUtoolsEnv()) {
+    utools.dbStorage.removeItem(key)
+  } else {
+    localStorage.removeItem(key);
+  }
+}
 
 // json转sql
 export const json2sql = (jsonData: any, type: string): string | undefined => {
@@ -72,7 +79,7 @@ export const json2sql = (jsonData: any, type: string): string | undefined => {
       ElMessage.error('缺少插入数据，请修改重试')
       return ''
     }
-    return format(`INSERT INTO ${tableName} (${columns})` + ` VALUES ${values};`, {language: 'mysql'})
+    return format(`INSERT INTO ${tableName} (${columns})` + ` VALUES ${values};`, {language: 'plsql'})
   } else if (type === 'UPDATE') {
     let sqlArr: string[] = []
     for (let obj of data) {
@@ -132,7 +139,7 @@ const parseValues = (obj: any): string => {
 }
 
 const transferObj = (obj: any): string | null => {
-  if (!obj) {
+  if (!obj && obj != 0) {
     return null
   }
   if (obj.toString() === "''" || obj.toString() === "'") {

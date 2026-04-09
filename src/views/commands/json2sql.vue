@@ -26,11 +26,12 @@
 
 <script setup lang="ts">
 import {ElMessage} from 'element-plus'
-import {copyText, json2sql, isNumber} from '../../utils'
+import {copyText, json2sql, isNumber, saveDb, queryDb, removeDb} from '../../utils'
 import JSONEditor from 'jsoneditor'
 import type {JSONEditorOptions} from 'jsoneditor'
 import 'jsoneditor/dist/jsoneditor.min.css'
 import {format} from 'sql-formatter';
+import {useRoute} from 'vue-router';
 
 
 let editor: any
@@ -50,8 +51,8 @@ if (onMounted) {
         statusBar: true, // 设置状态栏是否可见
       }
       editor = new JSONEditor(container, options)
-      initJson()
     }
+    initCache()
   })
 
   onUnmounted(() => {
@@ -59,6 +60,23 @@ if (onMounted) {
       editor.destroy()
     }
   })
+}
+
+const initCache = () => {
+  const route = useRoute();
+  const payload = route.query?.payload
+  if (payload) {
+    try {
+      setData({
+        table: 'table',
+        data: [JSON.parse(typeof payload === 'string' ? payload.toString() : JSON.stringify(payload))]
+      })
+      jsonToSql()
+      return
+    } catch (e) {
+    }
+  }
+  initJson()
 }
 
 const initJson = () => {
@@ -130,7 +148,7 @@ const sqlToJson = () => {
   let matches
   try {
     // 换行替换空格，连续空格再处理成单个空格
-    let sql = format(sqlInput.value, {language: 'mysql'}).trim()
+    let sql = format(sqlInput.value, {language: 'plsql'}).trim()
     sql = sql.endsWith(";") ? sql : sql + ';'
     matches = sql.replace(/\n/g, ' ')
     .replace(/ +/g, " ").match(/INSERT INTO (\w+) \((.+)\) VALUES (.+);/);

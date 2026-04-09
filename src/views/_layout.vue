@@ -7,6 +7,11 @@
       <el-menu-item index="/commands/json2sql">JSON转SQL</el-menu-item>
       <el-menu-item index="/commands/excel2sql">EXCEL转SQL</el-menu-item>
       <el-menu-item index="/commands/format-sql">漂亮SQL工具</el-menu-item>
+      <el-menu-item index="/commands/qr-code">二维码生成器</el-menu-item>
+      <el-menu-item index="/commands/timestamp">日期转换工具</el-menu-item>
+      <el-menu-item index="/commands/timestamp-to-sql">时间戳转SQL</el-menu-item>
+      <el-menu-item index="/commands/test-data-generator">测试数据生成</el-menu-item>
+      <el-menu-item index="/commands/sql-diff">文本差异对比</el-menu-item>
       <el-menu-item index="/about">关于插件</el-menu-item>
     </el-menu>
     <div class="view">

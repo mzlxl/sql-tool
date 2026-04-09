@@ -14,41 +14,65 @@ import 'element-plus/theme-chalk/el-dialog.css'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import {isUtoolsEnv} from './utils/index'
 
+const cmds = ["format", "美化", "格式化", "sql", "sharding", "分库分表", "路由", "行转列",
+  "列转行", "col", "row", "parse", "解析", "日志", "mybatis", "json", "转换", "excel", "file", "timestamp", "时间戳", "日期转换", "时间转换", "sjc", "timestamp-sql", "时间戳SQL", "时间戳转日期", "FROM_UNIXTIME", "test-data", "测试数据", "数据生成", "对比", "差异", "diff"]
 if (isUtoolsEnv()) {
   utools.onPluginEnter(({code, type, payload}) => {
-    // if (code === 'setting') {
-    //   router.push({ name: '/commands/' })
-    //   return
-    // }
+    let param = cmds.includes(payload) ? null : payload
     if (code === 'format') {
       // 所有指令的列表，方便选择未添加到utools快捷启动的命令
-      router.push({name: '/commands/format-sql'})
+      router.push({name: '/commands/format-sql', query: {"payload": param}})
       return
     }
 
     if (code === 'sharding') {
-      router.push({name: '/commands/sharding'})
+      router.push({name: '/commands/sharding', query: {"payload": param}})
       return
     }
 
     if (code === 'col2row') {
-      router.push({name: '/commands/col2row'})
+      router.push({name: '/commands/col2row', query: {"payload": param}})
       return
     }
 
     if (code === 'json2sql') {
-      router.push({name: '/commands/json2sql'})
+      router.push({name: '/commands/json2sql', query: {"payload": param}})
       return
     }
 
     if (code === 'parse-sql') {
       // 所有指令的列表，方便选择未添加到utools快捷启动的命令
-      router.push({name: '/commands/parse-sql'})
+      router.push({name: '/commands/parse-sql', query: {"payload": param}})
       return
     }
 
     if (code === 'excel2sql') {
-      router.push({name: '/commands/excel2sql'})
+      router.push({name: '/commands/excel2sql', query: {"payload": param}})
+      return
+    }
+
+    if (code === 'qr-code') {
+      router.push({name: '/commands/qr-code', query: {"payload": param}})
+      return
+    }
+
+    if (code === 'timestamp') {
+      router.push({name: '/commands/timestamp', query: {"payload": param}})
+      return
+    }
+
+    if (code === 'timestamp-to-sql') {
+      router.push({name: '/commands/timestamp-to-sql', query: {"payload": param}})
+      return
+    }
+
+    if (code === 'test-data-generator') {
+      router.push({name: '/commands/test-data-generator', query: {"payload": param}})
+      return
+    }
+
+    if (code === 'sql-diff') {
+      router.push({name: '/commands/sql-diff', query: {"payload": param}})
       return
     }
   })

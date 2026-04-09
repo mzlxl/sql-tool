@@ -13,7 +13,7 @@ import presetWind from '@unocss/preset-wind'
 export default defineConfig({
   base: './',
   build: {
-    target: 'es2019',
+    target: 'es2020',
     assetsInclude: ['manifest.json'],
   },
   define: {
